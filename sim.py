@@ -166,7 +166,7 @@ def main(args):
         p_orig_twas = 1
 
     # format and write output
-    df = pd.DataFrame({"stat":["ngwas", "nqtl", "h2ge", "h2g", "min_gwas_p", "mean_gwas_chi2", "median_gwas_chi2", "twas_orig_t", "twas_orig_p"],
+    df = pd.DataFrame({"stat":["ngwas", "nqtl", "h2ge", "h2g", "min_gwas_p", "mean_gwas_chi2", "median_gwas_chi2", "twas_orig_z", "twas_orig_p"],
                        "values":[args.ngwas, args.nqtl, args.var_explained, args.eqtl_h2, min_p_val, mean_chi2, med_chi2, z_orig_twas, p_orig_twas]})
 
     df.to_csv(args.output, sep="\t", index=False)
