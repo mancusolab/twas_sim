@@ -16,6 +16,7 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
     conda deactivate
 
 sim.py
+
     usage: sim.py [-h] [--ngwas NGWAS] [--nqtl NQTL] [--model {10pct,1pct,1snp}]
                   [--eqtl-h2 EQTL_H2] [--var-explained VAR_EXPLAINED] [-o OUTPUT]
                   prefix
