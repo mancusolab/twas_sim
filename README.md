@@ -3,15 +3,17 @@ Using real genotype data, simulate a complex trait as a function of latent expre
 
 To download the TWAS simulator first type the commands
 
-    git clone https://github.com/bulik/ldsc.git
-    cd ldsc
+    git clone https://github.com/mancusolab/twas_sim.git
+    cd twas_sim
 
 then,
 
     conda env create --file environment.yml
-    source activate twas_sim
+    conda activate twas_sim
 
-The script `example.sh` will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first.
+The script `example.sh` will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first. When you are done with the simulator be sure to enter the command
+
+    conda deactivate
 
 sim.py
     usage: sim.py [-h] [--ngwas NGWAS] [--nqtl NQTL] [--model {10pct,1pct,1snp}]
