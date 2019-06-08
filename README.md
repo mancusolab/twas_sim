@@ -41,16 +41,39 @@ sim.py is the actual simulator. Its usage is below:
                             (default: 0.01)
       -o OUTPUT, --output OUTPUT
       
-The output will be a tab-delimited file that contains two columns:
+The output will be a two tab-delimited reports.
+
+The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns:
 
 | stat             | values |
 | ------           | ------ |
 | ngwas            | GWAS sample size |
 | nqtl             | eQTL sample size  |
+| nsnps            | Number of SNPs |
 | h2ge             | variance explained in trait by GE |
 | h2g              | Narrow-sense heritability of GE |
-| min_gwas_p       | Minimum GWAS SNP p-value |
-| mean_gwas_chi2   | Mean GWAS SNP chi-sq |
-| median_gwas_chi2 | Median GWAS SNP chi-sq |
-| twas_orig_z      | TWAS Z score |
-| twas_orig_p      | TWAS p-value |
+| mean.ldsc        | Average LD-score at the region |
+| min.gwas.p       | Minimum GWAS SNP p-value |
+| mean.gwas.chi2   | Mean GWAS SNP chi-sq |
+| median.gwas.chi2 | Median GWAS SNP chi-sq |
+| twas.z           | TWAS Z score |
+| twas.p           | TWAS p-value |
+
+The second `OUTPUT.scan.tsv` is individuals statistics at each SNP. It contains the following columns:
+
+| column     | description |
+| ------     | ----------  |
+| chrom      | chromosome  |
+| snp        | snp identifier |
+| pos        | bp position |
+| a0         | non-effect allele |
+| a1         | effect allele |
+| maf        | minor allele frequency |
+| ld.score   | ld score (ie. sum_i r_ij^2, where r_ij is LD between snps i, j) |
+| gwas.beta  | beta coefficient in GWAS |
+| gwas.se    | standard error in GWAS |
+| gwas.true  | true causal effect for complex trait |
+| eqtl.beta  | beta coefficient in eQTL |
+| eqtl.se    | standard error in eQTL |
+| eqtl.true  | true causal effect for expression |
+| eqtl.lasso | coefficient estimated in LASSO |

@@ -60,4 +60,4 @@ python sim.py \
     --model $MODEL \
     --eqtl-h2 $H2G \
     --var-explained $H2GE \
-    --output ${locus}.tsv
+    --output ${locus}
