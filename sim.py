@@ -166,7 +166,10 @@ def sim_gwas(L, ngwas, b_qtls, var_explained):
 
     # var_explained should only reflect that due to genetics
     gwas_expr = np.dot(Z_gwas, b_qtls)
-    alpha = np.random.normal(loc=0, scale=1)
+    if var_explained > 0:
+        alpha = np.random.normal(loc=0, scale=1)
+    else:
+        alpha = 0
     y = sim_trait(gwas_expr * alpha, var_explained)
 
     gwas = regress(Z_gwas, y)
