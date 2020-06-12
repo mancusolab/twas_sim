@@ -245,6 +245,7 @@ def main(args):
     argp.add_argument("--var-explained", default=0.01, type=float,
                       help="Variance explained in complex trait by gene expression")
     argp.add_argument("-o", "--output", help="Output prefix")
+    argp.add_argument("--seed", type=int, help="Seed for random number generation")
 
     args = argp.parse_args(args)
 
@@ -268,6 +269,9 @@ def main(args):
     # compute LD-scores for reports
     ldscs = np.sum(LD ** 2, axis=0)
 
+    # set random seed from argument for simulation reproducibity
+    np.random.seed(args.seed)
+    
     b_qtls = sim_beta(args.model, args.eqtl_h2, p)
 
     # simulate GWAS under assumption that expression => downstream trait
