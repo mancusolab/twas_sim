@@ -40,7 +40,8 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
                             Variance explained in complex trait by gene expression
                             (default: 0.01)
       -o OUTPUT, --output OUTPUT
-      
+      --seed SEED           Seed for random number generation (default: None)
+
 The output will be a two tab-delimited reports.
 
 The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns:
