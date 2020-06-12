@@ -16,9 +16,12 @@ def main(args):
     argp.add_argument("-b", "--bound", type=float, default=5e5)
     argp.add_argument("-o", "--output", type=ap.FileType("w"), default=sys.stdout)
     argp.add_argument("--loc_output", type=ap.FileType("w"), default=sys.stdout)
+    argp.add_argument("--seed", type=int, help="Seed for random number generation")
 
     args = argp.parse_args(args)
 
+    # set seed
+    np.random.seed(args.seed)
 
     #1 	 10583 	 1892607
     loci = np.loadtxt(args.loci)
