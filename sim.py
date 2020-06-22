@@ -90,7 +90,7 @@ def sim_trait(g, h2g):
     :param g: numpy.ndarray of latent genetic values
     :param h2g: float the heritability of the trait in the population
 
-    :return: numpy.ndarray of simulated phenotype
+    :return: (numpy.ndarray, float) simulated phenotype, sd of Y
     """
     n = len(g)
 
@@ -105,9 +105,11 @@ def sim_trait(g, h2g):
 
     # standardize
     y -= np.mean(y)
-    y /= np.std(y)
+    y_std = np.std(y)
+    y /= y_std
+    y_std = y_std.item()
 
-    return y
+    return y, y_std
 
 
 def sim_geno(L, n):
@@ -170,11 +172,15 @@ def sim_gwas(L, ngwas, b_qtls, var_explained):
         alpha = np.random.normal(loc=0, scale=1)
     else:
         alpha = 0
-    y = sim_trait(gwas_expr * alpha, var_explained)
+    y, y_std = sim_trait(gwas_expr * alpha, var_explained)
 
     gwas = regress(Z_gwas, y)
 
-    return gwas, alpha
+    # correct gwas and alpha for original SD of y
+    alpha /= y_std
+    gwas /= y_std
+
+    return (gwas, alpha)
 
 
 def sim_eqtl(L, nqtl, b_qtls, eqtl_h2):
@@ -197,7 +203,7 @@ def sim_eqtl(L, nqtl, b_qtls, eqtl_h2):
     LD_qtl = np.dot(Z_qtl.T, Z_qtl) / n
 
     # simulate gene expression
-    gexpr = sim_trait(np.dot(Z_qtl, b_qtls), eqtl_h2)
+    gexpr, gexpr_std = sim_trait(np.dot(Z_qtl, b_qtls), eqtl_h2)
 
     # get marginal eQTLs for reporting
     eqtl = regress(Z_qtl, gexpr)
@@ -310,9 +316,10 @@ def main(args):
 
     # output a summary that contains the actual TWAS test statistic
     df = pd.DataFrame({"stat": ["ngwas", "nqtl", "nsnps", "h2ge", "h2g", "avg.ldsc",
-                                "min.gwas.p", "mean.gwas.chi2", "median.gwas.chi2", "twas.z", "twas.p"],
+                                "min.gwas.p", "mean.gwas.chi2", "median.gwas.chi2", "twas.z", "twas.p",
+                                "alpha"],
                        "values": [args.ngwas, args.nqtl, int(p), args.var_explained, args.eqtl_h2, np.mean(ldscs),
-                                  min_p_val, mean_chi2, med_chi2, z_twas, p_twas]})
+                                  min_p_val, mean_chi2, med_chi2, z_twas, p_twas, alpha]})
     df.to_csv("{}.summary.tsv".format(args.output), sep="\t", index=False)
 
     return 0
