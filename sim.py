@@ -176,9 +176,8 @@ def sim_gwas(L, ngwas, b_qtls, var_explained):
 
     gwas = regress(Z_gwas, y)
 
-    # correct gwas and alpha for original SD of y
+    # correct alpha for original SD of y
     alpha /= y_std
-    gwas /= y_std
 
     return (gwas, alpha)
 
