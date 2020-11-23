@@ -191,8 +191,8 @@ def sim_eqtl(L, nqtl, b_qtls, eqtl_h2):
     :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
     :param eqtl_h2: float the amount of expression variance explained by linear model of SNPs
 
-    :return:  (pandas.DataFrame, numpy.ndarray, numpy.ndarray) DataFrame of eQTL scan, vector of LASSO eQTL coefficients
-        and LD estimated from eQTL reference panel.
+    :return:  (pandas.DataFrame, numpy.ndarray, numpy.ndarray, float) DataFrame of eQTL scan, vector of LASSO eQTL coefficients,
+        LD estimated from eQTL reference panel, and original gene expression SD.
     """
     Z_qtl = sim_geno(L, nqtl)
     n, p = [float(x) for x in  Z_qtl.shape]
@@ -213,7 +213,7 @@ def sim_eqtl(L, nqtl, b_qtls, eqtl_h2):
     # fit LASSO to get predictive weights
     coef, r2, logl = fit_lasso(Z_qtl, gexpr, h2g)
 
-    return (eqtl, coef, LD_qtl)
+    return (eqtl, coef, LD_qtl, gexpr_std)
 
 
 def compute_twas(gwas, coef, LD):
@@ -283,7 +283,7 @@ def main(args):
     gwas, alpha = sim_gwas(L, args.ngwas, b_qtls, args.var_explained)
 
     # sample eQTL reference pop genotypes from MVN approx and perform eQTL scan + fit LASSO
-    eqtl, coef, LD_qtl = sim_eqtl(L, args.nqtl, b_qtls, args.eqtl_h2)
+    eqtl, coef, LD_qtl, gexpr_std = sim_eqtl(L, args.nqtl, b_qtls, args.eqtl_h2)
 
     # compute TWAS statistics
     score, within_var = compute_twas(gwas, coef, LD)
@@ -309,9 +309,13 @@ def main(args):
     output["gwas.true"] = b_qtls * alpha
     output["eqtl.beta"] = eqtl.beta
     output["eqtl.se"] = eqtl.se
-    output["eqtl.true"] = b_qtls
+    output["eqtl.true"] = b_qtls / gexpr_std
     output["eqtl.lasso"] = coef
     output.to_csv("{}.scan.tsv".format(args.output), sep="\t", index=False)
+
+    # correct alpha for original SD of gene expression 
+    # (this needs to come after construction of gwas.true above)
+    alpha *= gexpr_std
 
     # output a summary that contains the actual TWAS test statistic
     df = pd.DataFrame({"stat": ["ngwas", "nqtl", "nsnps", "h2ge", "h2g", "avg.ldsc",
