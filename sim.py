@@ -2,8 +2,8 @@
 import argparse as ap
 import sys
 
-import numpy as np
 import limix.her as her
+import numpy as np
 import pandas as pd
 import scipy.linalg as linalg
 
@@ -20,12 +20,65 @@ def fit_lasso(Z, y, h2g):
     Infer eqtl coefficients using LASSO regression. Uses the PLINK-style coordinate descent algorithm
     that is bootstrapped by the current h2g estimate.
 
-    :param Z:  numpy.ndarray n x p genotype matrix
+    :param Z: numpy.ndarray n x p genotype matrix
     :param y: numpy.ndarray gene expression for n individuals
     :param h2g: float the -estimated- h2g from reference panel
 
     :return: (numpy.ndarray, float, float) tuple of the LASSO coefficients, the r-squared score, and log-likelihood
     """
+    return _fit_sparse_penalized_model(Z, y, h2g, lm.Lasso)
+
+
+def fit_enet(Z, y, h2g):
+    """
+    Infer eqtl coefficients using ElasticNet regression. Uses the PLINK-style coordinate descent algorithm
+    that is bootstrapped by the current h2g estimate.
+
+    :param Z:  numpy.ndarray n x p genotype matrix
+    :param y: numpy.ndarray gene expression for n individuals
+    :param h2g: float the -estimated- h2g from reference panel
+
+    :return: (numpy.ndarray, float, float) tuple of the ElasticNet coefficients, the r-squared score, and log-likelihood
+    """
+    return _fit_sparse_penalized_model(Z, y, h2g, lm.ElasticNet)
+
+
+def fit_ridge(Z, y, h2g):
+    """
+    Infer eqtl coefficients using Ridge regression. Uses the optimal ridge penality defined from REML.
+
+    :param Z:  numpy.ndarray n x p genotype matrix
+    :param y: numpy.ndarray gene expression for n individuals
+    :param h2g: float the -estimated- h2g from reference panel
+
+    :return: (numpy.ndarray, float, float) tuple of the Ridge coefficients, the r-squared score, and log-likelihood
+    """
+    n, p = Z.shape
+    lambda_r = (1 - h2g) / (h2g / p)
+
+    model = lm.Ridge(alpha=lambda_r)
+    model.fit(Z, y)
+    coef, r2, logl = _get_model_info(model, Z, y)
+
+    return coef, r2, logl
+
+
+def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso):
+    """
+    Infer eqtl coefficients using L1/L2 penalized regression. Uses the PLINK-style coordinate descent algorithm
+    that is bootstrapped by the current h2g estimate.
+
+    :param Z: numpy.ndarray n x p genotype matrix
+    :param y: numpy.ndarray gene expression for n individuals
+    :param h2g: float the -estimated- h2g from reference panel
+    :param model_cls: linear_model from sklearn. Must be either Lasso or ElasticNet
+
+    :return: (numpy.ndarray, float, float) tuple of the LASSO or ElasticNet coefficients, the r-squared score, and log-likelihood
+    """
+
+    if model_cls not in [lm.Lasso, lm.ElasticNet]:
+        raise ValueError("penalized model must be either Lasso or ElasticNet")
+
     n, p = Z.shape
 
     def _gen_e():
@@ -42,16 +95,23 @@ def fit_lasso(Z, y, h2g):
     # 100 values spaced logarithmically from lambda-min to lambda-max
     alphas = np.exp(np.linspace(np.log(lambda_min), np.log(lambda_max), 100))
 
-    # fit LASSO solution using coordinate descent, updating with consecutively smaller penalties
-    lasso = lm.Lasso(fit_intercept=True, warm_start=True)
+    # fit solution using coordinate descent, updating with consecutively smaller penalties
+    model = model_cls(fit_intercept=True, warm_start=True)
     for penalty in reversed(alphas):
-        lasso.set_params(alpha=penalty)
-        lasso.fit(Z, y)
+        model.set_params(alpha=penalty)
+        model.fit(Z, y)
 
-    coef = lasso.coef_
+    coef, r2, logl = _get_model_info(model, Z, y)
 
-    r2 = lasso.score(Z, y)
-    ystar = lasso.predict(Z)
+    return coef, r2, logl
+
+
+def _get_model_info(model, Z, y):
+    n, p = Z.shape
+    coef = model.coef_
+
+    r2 = model.score(Z, y)
+    ystar = model.predict(Z)
     s2e = sum((y - ystar) ** 2) / (n - 1)
 
     logl = sum(stats.norm.logpdf(y, loc=ystar, scale=np.sqrt(s2e)))
@@ -78,7 +138,9 @@ def sim_beta(model, eqtl_h2, n_snps):
     b_qtls = np.zeros(int(n_snps))
 
     # sample effects from normal prior
-    b_qtls[c_qtls] = np.random.normal(loc=0, scale=np.sqrt(eqtl_h2 / n_qtls), size=n_qtls)
+    b_qtls[c_qtls] = np.random.normal(
+        loc=0, scale=np.sqrt(eqtl_h2 / n_qtls), size=n_qtls
+    )
 
     return b_qtls
 
@@ -86,7 +148,6 @@ def sim_beta(model, eqtl_h2, n_snps):
 def sim_trait(g, h2g):
     """
     Simulate a complex trait as a function of latent genetic value and env noise.
-
     :param g: numpy.ndarray of latent genetic values
     :param h2g: float the heritability of the trait in the population
 
@@ -96,7 +157,7 @@ def sim_trait(g, h2g):
 
     if h2g > 0:
         s2g = np.var(g, ddof=1)
-        s2e = s2g * ( (1.0 / h2g ) - 1 )
+        s2e = s2g * ((1.0 / h2g) - 1)
         e = np.random.normal(0, np.sqrt(s2e), n)
         y = g + e
     else:
@@ -148,9 +209,44 @@ def regress(Z, pheno):
         ses.append(se)
         pvals.append(pval)
 
-    gwas = pd.DataFrame({"beta":betas, "se":ses, "pval":pvals})
+    gwas = pd.DataFrame({"beta": betas, "se": ses, "pval": pvals})
 
     return gwas
+
+
+def sim_gwasfast(L, ngwas, b_qtls, var_explained):
+    """
+    Simulate a GWAS using `ngwas` individuals such that genetics explain `var_explained` of phenotype.
+
+    :param L: numpy.ndarray lower cholesky factor of the p x p LD matrix for the population
+    :param ngwas: int the number of GWAS genotypes to sample
+    :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
+    :param var_explained: float the amount of phenotypic variance explained by genetic component of gene expression
+
+    :return: (pandas.DataFrame, float) estimated GWAS beta and standard error, causal GE effect
+
+    """
+    if var_explained > 0:
+        alpha = np.random.normal(loc=0, scale=1)
+    else:
+        alpha = 0
+
+    beta = b_qtls * alpha
+    Ltb = np.dot(L.T, beta)
+    s2g = np.dot(Ltb.T, Ltb)
+    if var_explained > 0:
+        s2e = s2g * ((1.0 / var_explained) - 1)
+        se_gwas = np.sqrt(s2e / ngwas)
+    else:
+        se_gwas = np.sqrt(1 / ngwas)
+    b_gwas = np.dot(L, np.random.normal(loc=Ltb, scale=se_gwas))
+
+    Z = b_gwas / se_gwas
+    pvals = 2 * stats.norm.sf(abs(Z))
+
+    gwas = pd.DataFrame({"beta": b_gwas, "se": se_gwas, "pval": pvals})
+
+    return (gwas, alpha)
 
 
 def sim_gwas(L, ngwas, b_qtls, var_explained):
@@ -182,7 +278,7 @@ def sim_gwas(L, ngwas, b_qtls, var_explained):
     return (gwas, alpha)
 
 
-def sim_eqtl(L, nqtl, b_qtls, eqtl_h2):
+def sim_eqtl(L, nqtl, b_qtls, eqtl_h2, pred_func):
     """
     Simulate an eQLT study using `nqtl` individuals.
 
@@ -190,12 +286,14 @@ def sim_eqtl(L, nqtl, b_qtls, eqtl_h2):
     :param nqtl: int the number of eQTL-panel genotypes to sample
     :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
     :param eqtl_h2: float the amount of expression variance explained by linear model of SNPs
+    :param pred_func: function that takes genotype, phenotype, and h2g estimate to predict ge.
 
     :return:  (pandas.DataFrame, numpy.ndarray, numpy.ndarray, float) DataFrame of eQTL scan, vector of LASSO eQTL coefficients,
         LD estimated from eQTL reference panel, and original gene expression SD.
     """
+
     Z_qtl = sim_geno(L, nqtl)
-    n, p = [float(x) for x in  Z_qtl.shape]
+    n, p = [float(x) for x in Z_qtl.shape]
 
     # GRM and LD
     A = np.dot(Z_qtl, Z_qtl.T) / p
@@ -210,8 +308,8 @@ def sim_eqtl(L, nqtl, b_qtls, eqtl_h2):
     # fit predictive model using LASSO
     h2g = her.estimate(gexpr, "normal", A, verbose=False)
 
-    # fit LASSO to get predictive weights
-    coef, r2, logl = fit_lasso(Z_qtl, gexpr, h2g)
+    # fit penalized to get predictive weights
+    coef, r2, logl = pred_func(Z_qtl, gexpr, h2g)
 
     return (eqtl, coef, LD_qtl, gexpr_std)
 
@@ -237,56 +335,136 @@ def compute_twas(gwas, coef, LD):
 
 
 def main(args):
-    argp = ap.ArgumentParser(description="Simulate TWAS using real genotype data",
-                             formatter_class=ap.ArgumentDefaultsHelpFormatter)
-    argp.add_argument("prefix",
-                      help="Prefix to PLINK-formatted data")
+    argp = ap.ArgumentParser(
+        description="Simulate TWAS using real genotype data",
+        formatter_class=ap.ArgumentDefaultsHelpFormatter,
+    )
+    argp.add_argument(
+        "prefix", help="Prefix to PLINK-formatted data for GWAS LD information"
+    )
+    argp.add_argument(
+        "--eqtl-prefix",
+        default=None,
+        help="Optional prefix to PLINK-formatted data for eQTL LD information. Otherwise use GWAS LD.",
+    )
+    argp.add_argument(
+        "--test-prefix",
+        default=None,
+        help="Optional prefix to PLINK-formatted data for LD information in TWAS test statistic. Otherwise use GWAS LD.",
+    )
+    argp.add_argument(
+        "--fast-gwas-sim",
+        help="Simulate GWAS summary data directly from LD",
+    )
 
-    argp.add_argument("--ngwas", default=100000, type=int, help="Sample size for GWAS panel")
-    argp.add_argument("--nqtl", default=500, type=int, help="Sample size for eQTL panel")
-    argp.add_argument("--model", choices=["10pct", "1pct", "1snp"], default="10pct",
-                      help="SNP model for generating gene expression. 10pct = 10%% of SNPs, 1pct = 1%% of SNPs, 1snp = 1 SNP")
-    argp.add_argument("--eqtl-h2", default=0.1, type=float, help="The narrow-sense heritability of gene expression")
-    argp.add_argument("--var-explained", default=0.01, type=float,
-                      help="Variance explained in complex trait by gene expression")
+    argp.add_argument(
+        "--ngwas", default=100000, type=int, help="Sample size for GWAS panel"
+    )
+    argp.add_argument(
+        "--nqtl", default=500, type=int, help="Sample size for eQTL panel"
+    )
+    argp.add_argument(
+        "--model",
+        choices=["10pct", "1pct", "1snp"],
+        default="10pct",
+        help="SNP model for generating gene expression. 10pct = 10%% of SNPs, 1pct = 1%% of SNPs, 1snp = 1 SNP",
+    )
+    argp.add_argument(
+        "--ld-ridge", default=0.1, type=float, help="Offset to add to LD Diagonal"
+    )
+    argp.add_argument(
+        "--linear-model",
+        choices=["lasso", "enet", "ridge"],
+        default="lasso",
+        help="Linear model to predict gene expression from genotype.",
+    )
+    argp.add_argument(
+        "--eqtl-h2",
+        default=0.1,
+        type=float,
+        help="The narrow-sense heritability of gene expression",
+    )
+    argp.add_argument(
+        "--var-explained",
+        default=0.01,
+        type=float,
+        help="Variance explained in complex trait by gene expression",
+    )
     argp.add_argument("-o", "--output", help="Output prefix")
     argp.add_argument("--seed", type=int, help="Seed for random number generation")
+    argp.add_argument("--sim", type=int, help="Simulation index for post-hoc analysis")
+    argp.add_argument("--locus", type=int, help="locus index for post-hoc analysis")
 
     args = argp.parse_args(args)
 
-    # read in plink data
-    bim, fam, G = read_plink(args.prefix, verbose=False)
-    G = G.T 
+    def get_ld(prefix):
+        # return cholesky L and ldscs
+        bim, fam, G = read_plink(prefix, verbose=False)
+        G = G.T
 
-    # estimate LD for population from PLINK data
-    n, p = [float(x) for x in G.shape]
-    p_int = int(p)
-    mafs = np.mean(G, axis=0) / 2
-    G -= mafs * 2
-    G /= np.std(G, axis=0)
+        # estimate LD for population from PLINK data
+        n, p = [float(x) for x in G.shape]
+        p_int = int(p)
+        mafs = np.mean(G, axis=0) / 2
+        G -= mafs * 2
+        G /= np.std(G, axis=0)
 
-    # regularize so that LD is PSD
-    LD = np.dot(G.T, G) / n + np.eye(p_int) * 0.1
+        # regularize so that LD is PSD
+        LD = np.dot(G.T, G) / n + np.eye(p_int) * args.ld_ridge
 
-    # compute cholesky decomp for faster sampling/simulation
-    L = linalg.cholesky(LD, lower=True)
+        # compute cholesky decomp for faster sampling/simulation
+        L = linalg.cholesky(LD, lower=True)
 
-    # compute LD-scores for reports
-    ldscs = np.sum(LD ** 2, axis=0)
+        # compute LD-scores for reports
+        # weird dask issues require us to call compute here
+        ldscs = np.sum(LD**2, axis=0).compute()
 
-    # set random seed from argument for simulation reproducibity
+        return (L, mafs, ldscs, bim)
+
     np.random.seed(args.seed)
-    
+
+    # compute GWAS LD information from reference genotype data
+    L, mafs, ldscs, bim = get_ld(args.prefix)
+    p = len(ldscs)
+
+    # simulate eQTLs
     b_qtls = sim_beta(args.model, args.eqtl_h2, p)
 
     # simulate GWAS under assumption that expression => downstream trait
-    gwas, alpha = sim_gwas(L, args.ngwas, b_qtls, args.var_explained)
+    fast_gwas_sim = args.fast_gwas_sim == 'True'
+    if fast_gwas_sim:
+        # simulate directly from LD information using MVN
+        gwas, alpha = sim_gwasfast(L, args.ngwas, b_qtls, args.var_explained)
+    else:
+        # otherwise simulate genotype data from MVN and do pheno sim + scan
+        gwas, alpha = sim_gwas(L, args.ngwas, b_qtls, args.var_explained)
 
-    # sample eQTL reference pop genotypes from MVN approx and perform eQTL scan + fit LASSO
-    eqtl, coef, LD_qtl, gexpr_std = sim_eqtl(L, args.nqtl, b_qtls, args.eqtl_h2)
+    # sample eQTL reference pop genotypes from MVN approx and perform eQTL scan + fit penalized linear model
+    if args.linear_model == "lasso":
+        pred_func = fit_lasso
+    elif args.linear_model == "enet":
+        pred_func = fit_enet
+    elif args.linear_model == "ridge":
+        pred_func = fit_ridge
+    else:
+        raise ValueError("Invalid linear model")
+
+    if args.eqtl_prefix is not None:
+        L_eqtl, mafs_eqtl, ldscs_eqtl, bim_eqtl = get_ld(args.eqtl_prefix)
+    else:
+        L_eqtl = L
+    eqtl, coef, LD_qtl, gexpr_std = sim_eqtl(
+        L_eqtl, args.nqtl, b_qtls, args.eqtl_h2, pred_func
+    )
+
+    if args.test_prefix is not None:
+        L_test, mafs_test, ldscs_test, bim_test = get_ld(args.test_prefix)
+    else:
+        L_test = L
+    LD_test = np.dot(L_test.T, L_test)
 
     # compute TWAS statistics
-    score, within_var = compute_twas(gwas, coef, LD)
+    score, within_var = compute_twas(gwas, coef, LD_test)
 
     min_p_val = np.min(gwas.pval.values)
     mean_chi2 = np.mean((gwas.beta.values / gwas.se.values) ** 2)
@@ -296,7 +474,7 @@ def main(args):
         z_twas = score / np.sqrt(within_var)
         p_twas = 2 * stats.norm.sf(np.abs(z_twas))
     else:
-        # on underpowered/low-h2g genes LASSO can set all weights to 0 and effectively break the variance estimate 
+        # on underpowered/low-h2g genes LASSO can set all weights to 0 and effectively break the variance estimate
         z_twas = 0
         p_twas = 1
 
@@ -309,20 +487,31 @@ def main(args):
     output["gwas.true"] = b_qtls * alpha
     output["eqtl.beta"] = eqtl.beta
     output["eqtl.se"] = eqtl.se
+    output["eqtl.model"] = [args.linear_model] * len(mafs)
+    output["eqtl.model.beta"] = coef
     output["eqtl.true"] = b_qtls / gexpr_std
-    output["eqtl.lasso"] = coef
+
     output.to_csv("{}.scan.tsv".format(args.output), sep="\t", index=False)
 
-    # correct alpha for original SD of gene expression 
+    # correct alpha for original SD of gene expression
     # (this needs to come after construction of gwas.true above)
     alpha *= gexpr_std
 
     # output a summary that contains the actual TWAS test statistic
-    df = pd.DataFrame({"stat": ["ngwas", "nqtl", "nsnps", "h2ge", "h2g", "avg.ldsc",
-                                "min.gwas.p", "mean.gwas.chi2", "median.gwas.chi2", "twas.z", "twas.p",
-                                "alpha"],
-                       "values": [args.ngwas, args.nqtl, int(p), args.var_explained, args.eqtl_h2, np.mean(ldscs),
-                                  min_p_val, mean_chi2, med_chi2, z_twas, p_twas, alpha]})
+
+    df = pd.DataFrame({"ngwas": [args.ngwas],
+            "nqtl": [args.nqtl],
+            "nsnps": [int(p)],
+            "h2ge": [args.var_explained],
+            "h2g": [args.eqtl_h2],
+            "avg.ldsc": [np.mean(ldscs)],
+            "min.gwas.p" : [min_p_val],
+            "mean.gwas.chi2": [mean_chi2],
+            "median.gwas.chi2": [med_chi2],
+            "twas.z": [z_twas],
+            "twas.p": [p_twas],
+            "alpha": [alpha]})
+
     df.to_csv("{}.summary.tsv".format(args.output), sep="\t", index=False)
 
     return 0
