@@ -18,14 +18,15 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 `sim.py` is the actual simulator. Its usage is below:
 
     usage: sim.py [-h] [--ngwas NGWAS] [--nqtl NQTL] [--model {10pct,1pct,1snp}]
-                  [--eqtl-h2 EQTL_H2] [--var-explained VAR_EXPLAINED] [-o OUTPUT]
+                   [--linear-model {lasso, enet, ridge}] [--eqtl-h2 EQTL_H2]
+                   [--var-explained VAR_EXPLAINED] [-o OUTPUT]
                   prefix
-    
+
     Simulate TWAS using real genotype data
-    
+
     positional arguments:
       prefix                Prefix to PLINK-formatted data
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       --ngwas NGWAS         Sample size for GWAS panel (default: 100000)
@@ -34,6 +35,8 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
                             SNP model for generating gene expression. 10pct = 10%
                             of SNPs, 1pct = 1% of SNPs, 1snp = 1 SNP (default:
                             10pct)
+      --linear-model {lasso, enet, ridge}
+                            Linear model to predict gene expression from genotype
       --eqtl-h2 EQTL_H2     The narrow-sense heritability of gene expression
                             (default: 0.1)
       --var-explained VAR_EXPLAINED
@@ -59,22 +62,24 @@ The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns
 | median.gwas.chi2 | Median GWAS SNP chi-sq |
 | twas.z           | TWAS Z score |
 | twas.p           | TWAS p-value |
+| alpha            | TWAS alpha |
 
 The second `OUTPUT.scan.tsv` is individuals statistics at each SNP. It contains the following columns:
 
-| column     | description |
-| ------     | ----------  |
-| chrom      | chromosome  |
-| snp        | snp identifier |
-| pos        | bp position |
-| a0         | non-effect allele |
-| a1         | effect allele |
-| maf        | minor allele frequency |
-| ld.score   | ld score (ie. sum_i r_ij^2, where r_ij is LD between snps i, j) |
-| gwas.beta  | beta coefficient in GWAS |
-| gwas.se    | standard error in GWAS |
-| gwas.true  | true causal effect for complex trait |
-| eqtl.beta  | beta coefficient in eQTL |
-| eqtl.se    | standard error in eQTL |
-| eqtl.true  | true causal effect for expression |
-| eqtl.lasso | coefficient estimated in LASSO |
+| column              | description |
+| ------              | ----------  |
+| chrom               | chromosome  |
+| snp                 | snp identifier |
+| pos                 | bp position |
+| a0                  | non-effect allele |
+| a1                  | effect allele |
+| maf                 | minor allele frequency |
+| ld.score            | ld score (ie. sum_i r_ij^2, where r_ij is LD between snps i, j) |
+| gwas.beta           | beta coefficient in GWAS |
+| gwas.se             | standard error in GWAS |
+| gwas.true           | true causal effect for complex trait |
+| eqtl.beta           | beta coefficient in eQTL |
+| eqtl.se             | standard error in eQTL |
+| eqtl.model          | linear model to predict gene expression from genotype |
+| eqtl.model.beta     | coefficient estimated in selected linear model |
+| eqtl.true           | true causal effect for expression |
