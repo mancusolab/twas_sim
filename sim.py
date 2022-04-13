@@ -354,7 +354,7 @@ def main(args):
     )
     argp.add_argument(
         "--fast-gwas-sim",
-        help="Simulate GWAS summary data directly from LD",
+        help="If 'True' (case-sensitive) then simulate GWAS summary data directly from LD",
     )
 
     argp.add_argument(
@@ -417,7 +417,7 @@ def main(args):
 
         # compute LD-scores for reports
         # weird dask issues require us to call compute here
-        ldscs = np.sum(LD**2, axis=0).compute()
+        ldscs = np.sum(LD ** 2, axis=0).compute()
 
         return (L, mafs, ldscs, bim)
 
@@ -431,7 +431,7 @@ def main(args):
     b_qtls = sim_beta(args.model, args.eqtl_h2, p)
 
     # simulate GWAS under assumption that expression => downstream trait
-    fast_gwas_sim = args.fast_gwas_sim == 'True'
+    fast_gwas_sim = args.fast_gwas_sim == "True"
     if fast_gwas_sim:
         # simulate directly from LD information using MVN
         gwas, alpha = sim_gwasfast(L, args.ngwas, b_qtls, args.var_explained)
@@ -483,6 +483,7 @@ def main(args):
     output["maf"] = mafs
     output["ld.score"] = ldscs
     output["gwas.beta"] = gwas.beta
+    output["gwas.sim"] = ["fast" if fast_gwas_sim else "standard"] * len(mafs)
     output["gwas.se"] = gwas.se
     output["gwas.true"] = b_qtls * alpha
     output["eqtl.beta"] = eqtl.beta
@@ -499,18 +500,23 @@ def main(args):
 
     # output a summary that contains the actual TWAS test statistic
 
-    df = pd.DataFrame({"ngwas": [args.ngwas],
+    df = pd.DataFrame(
+        {
+            "ngwas": [args.ngwas],
+            "gwas.sim": ["fast" if fast_gwas_sim else "standard"],
             "nqtl": [args.nqtl],
             "nsnps": [int(p)],
             "h2ge": [args.var_explained],
             "h2g": [args.eqtl_h2],
             "avg.ldsc": [np.mean(ldscs)],
-            "min.gwas.p" : [min_p_val],
+            "min.gwas.p": [min_p_val],
             "mean.gwas.chi2": [mean_chi2],
             "median.gwas.chi2": [med_chi2],
             "twas.z": [z_twas],
             "twas.p": [p_twas],
-            "alpha": [alpha]})
+            "alpha": [alpha],
+        }
+    )
 
     df.to_csv("{}.summary.tsv".format(args.output), sep="\t", index=False)
 
