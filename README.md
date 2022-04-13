@@ -17,9 +17,12 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 
 `sim.py` is the actual simulator. Its usage is below:
 
-    usage: sim.py [-h] [--ngwas NGWAS] [--nqtl NQTL] [--model {10pct,1pct,1snp}]
-                   [--linear-model {lasso, enet, ridge}] [--eqtl-h2 EQTL_H2]
-                   [--var-explained VAR_EXPLAINED] [-o OUTPUT]
+    usage: sim.py [-h] [--eqtl-prefix EQTL_PREFIX] [--test-prefix TEST_PREFIX]
+                    [--fast-gwas-sim FAST_GWAS_SIM] [--ngwas NGWAS] [--nqtl NQTL]
+                    [--model {10pct,1pct,1snp}] [--ld-ridge LD_RIDGE]
+                    [--linear-model {lasso,enet,ridge}] [--eqtl-h2 EQTL_H2]
+                    [--var-explained VAR_EXPLAINED] [-o OUTPUT] [--seed SEED]
+                    [--sim SIM] [--locus LOCUS]
                   prefix
 
     Simulate TWAS using real genotype data
