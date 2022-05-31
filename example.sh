@@ -28,8 +28,8 @@ NGE=500 # N EQTL
 MODEL=1pct # eQTL model; see sim.py for details
 H2G=0.1 # eQTL h2g
 H2GE=0.0 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
-fastGWAS=False # GWAS mode; False = default GWAS; True = fast GWAS
-LINEAR_MODEL=enet
+fastGWAS=True # GWAS mode; False = default GWAS; True = fast GWAS
+LINEAR_MODEL=truqtl
 
 while [ ! -e $odir/twas_sim${SIM}_loci${locus}.bim ]
 do
@@ -77,4 +77,4 @@ $odir/twas_sim${SIM}_loci${locus} \
 --var-explained $H2GE \
 --fast-gwas-sim $fastGWAS \
 --linear-model $LINEAR_MODEL \
---output /scratch1/xwang505/twas_sim/twas_sim_results/twas_sim${SIM}_loci${locus}
+--output /scratch1/xwang505/twas_sim/twas_sim \

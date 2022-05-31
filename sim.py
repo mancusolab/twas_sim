@@ -62,6 +62,16 @@ def fit_ridge(Z, y, h2g):
 
     return coef, r2, logl
 
+def fit_truqtl(Z, y, h2g, b_qtls):
+    """
+    Return true latent eQTL effects for the causal gene.
+
+    :param Z:  numpy.ndarray n x p genotype matrix
+    :param y: numpy.ndarray gene expression for n individuals
+    :param h2g: float the -estimated- h2g from reference panel
+    :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
+    """
+    return b_qtls
 
 def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso):
     """
@@ -374,7 +384,7 @@ def main(args):
     )
     argp.add_argument(
         "--linear-model",
-        choices=["lasso", "enet", "ridge"],
+        choices=["lasso", "enet", "ridge", "truqtl"],
         default="lasso",
         help="Linear model to predict gene expression from genotype.",
     )
@@ -446,6 +456,8 @@ def main(args):
         pred_func = fit_enet
     elif args.linear_model == "ridge":
         pred_func = fit_ridge
+    elif args.linear_model == "truqtl":
+        pred_func = fit_truqtl
     else:
         raise ValueError("Invalid linear model")
 
