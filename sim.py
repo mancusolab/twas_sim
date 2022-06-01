@@ -15,7 +15,7 @@ from sklearn import linear_model as lm
 mvn = stats.multivariate_normal
 
 
-def fit_lasso(Z, y, h2g):
+def fit_lasso(Z, y, h2g, b_qtls = None):
     """
     Infer eqtl coefficients using LASSO regression. Uses the PLINK-style coordinate descent algorithm
     that is bootstrapped by the current h2g estimate.
@@ -29,7 +29,7 @@ def fit_lasso(Z, y, h2g):
     return _fit_sparse_penalized_model(Z, y, h2g, lm.Lasso)
 
 
-def fit_enet(Z, y, h2g):
+def fit_enet(Z, y, h2g, b_qtls = None):
     """
     Infer eqtl coefficients using ElasticNet regression. Uses the PLINK-style coordinate descent algorithm
     that is bootstrapped by the current h2g estimate.
@@ -43,7 +43,7 @@ def fit_enet(Z, y, h2g):
     return _fit_sparse_penalized_model(Z, y, h2g, lm.ElasticNet)
 
 
-def fit_ridge(Z, y, h2g):
+def fit_ridge(Z, y, h2g, b_qtls = None):
     """
     Infer eqtl coefficients using Ridge regression. Uses the optimal ridge penality defined from REML.
 
@@ -62,7 +62,7 @@ def fit_ridge(Z, y, h2g):
 
     return coef, r2, logl
 
-def fit_truqtl(Z, y, h2g, b_qtls):
+def fit_truqtl(Z, y, h2g, b_qtls = None):
     """
     Return true latent eQTL effects for the causal gene.
 
@@ -71,7 +71,7 @@ def fit_truqtl(Z, y, h2g, b_qtls):
     :param h2g: float the -estimated- h2g from reference panel
     :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
     """
-    return b_qtls
+    return b_qtls, None, None
 
 def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso):
     """
@@ -315,11 +315,11 @@ def sim_eqtl(L, nqtl, b_qtls, eqtl_h2, pred_func):
     # get marginal eQTLs for reporting
     eqtl = regress(Z_qtl, gexpr)
 
-    # fit predictive model using LASSO
+    # fit predictive model
     h2g = her.estimate(gexpr, "normal", A, verbose=False)
 
     # fit penalized to get predictive weights
-    coef, r2, logl = pred_func(Z_qtl, gexpr, h2g)
+    coef, r2, logl = pred_func(Z_qtl, gexpr, h2g, b_qtls)
 
     return (eqtl, coef, LD_qtl, gexpr_std)
 
