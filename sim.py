@@ -10,6 +10,7 @@ import scipy.linalg as linalg
 from numpy.linalg import multi_dot as mdot
 from pandas_plink import read_plink
 from scipy import stats
+from scipy.stats import invgamma
 from sklearn import linear_model as lm
 
 mvn = stats.multivariate_normal
@@ -62,7 +63,7 @@ def fit_ridge(Z, y, h2g, b_qtls = None):
 
     return coef, r2, logl
 
-def fit_truqtl(Z, y, h2g, b_qtls = None):
+def fit_trueqtl(Z, y, h2g, b_qtls = None):
     """
     Return true latent eQTL effects for the causal gene.
 
@@ -224,7 +225,7 @@ def regress(Z, pheno):
     return gwas
 
 
-def sim_gwasfast(L, ngwas, b_qtls, var_explained):
+def sim_gwasfast(L, ngwas, b_qtls, var_explained, n_snps):
     """
     Simulate a GWAS using `ngwas` individuals such that genetics explain `var_explained` of phenotype.
 
@@ -232,10 +233,13 @@ def sim_gwasfast(L, ngwas, b_qtls, var_explained):
     :param ngwas: int the number of GWAS genotypes to sample
     :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
     :param var_explained: float the amount of phenotypic variance explained by genetic component of gene expression
+    :param n_snps: the total number of snps at the region
+
 
     :return: (pandas.DataFrame, float) estimated GWAS beta and standard error, causal GE effect
 
     """
+
     if var_explained > 0:
         alpha = np.random.normal(loc=0, scale=1)
     else:
@@ -244,12 +248,21 @@ def sim_gwasfast(L, ngwas, b_qtls, var_explained):
     beta = b_qtls * alpha
     Ltb = np.dot(L.T, beta)
     s2g = np.dot(Ltb.T, Ltb)
+
     if var_explained > 0:
         s2e = s2g * ((1.0 / var_explained) - 1)
-        se_gwas = np.sqrt(s2e / ngwas)
     else:
-        se_gwas = np.sqrt(1 / ngwas)
-    b_gwas = np.dot(L, np.random.normal(loc=Ltb, scale=se_gwas))
+        s2e = 1.0 # var[y]; could be diff from 1, but heere we assume 1
+
+    dof = ngwas - 1
+    tau2 = s2e / ngwas
+    se_gwas = np.sqrt(invgamma.rvs(a=0.5 * dof, scale=0.5 * dof * tau2, size = n_snps))
+    DLt = se_gwas[:,np.newaxis] * L.T
+
+    beta_adj = mdot([DLt, L, (beta / se_gwas)]) # D @ Lt @ L @ inv(D) @ beta
+
+    # b_gwas ~ N(D @ Lt @ L inv(D) @ beta, D @ Lt @ L @ D), but fast
+    b_gwas = beta_adj + np.dot(DLt, np.random.normal(size = (n_snps,)))
 
     Z = b_gwas / se_gwas
     pvals = 2 * stats.norm.sf(abs(Z))
@@ -257,6 +270,7 @@ def sim_gwasfast(L, ngwas, b_qtls, var_explained):
     gwas = pd.DataFrame({"beta": b_gwas, "se": se_gwas, "pval": pvals})
 
     return (gwas, alpha)
+
 
 
 def sim_gwas(L, ngwas, b_qtls, var_explained):
@@ -384,7 +398,7 @@ def main(args):
     )
     argp.add_argument(
         "--linear-model",
-        choices=["lasso", "enet", "ridge", "truqtl"],
+        choices=["lasso", "enet", "ridge", "trueqtl"],
         default="lasso",
         help="Linear model to predict gene expression from genotype.",
     )
@@ -420,7 +434,7 @@ def main(args):
         G /= np.std(G, axis=0)
 
         # regularize so that LD is PSD
-        LD = np.dot(G.T, G) / n + np.eye(p_int) * args.ld_ridge
+        LD = (1 - args.ld_ridge) * np.dot(G.T, G) / n + np.eye(p_int) * args.ld_ridge
 
         # compute cholesky decomp for faster sampling/simulation
         L = linalg.cholesky(LD, lower=True)
@@ -444,7 +458,7 @@ def main(args):
     fast_gwas_sim = args.fast_gwas_sim == "True"
     if fast_gwas_sim:
         # simulate directly from LD information using MVN
-        gwas, alpha = sim_gwasfast(L, args.ngwas, b_qtls, args.var_explained)
+        gwas, alpha = sim_gwasfast(L, args.ngwas, b_qtls, args.var_explained, p)
     else:
         # otherwise simulate genotype data from MVN and do pheno sim + scan
         gwas, alpha = sim_gwas(L, args.ngwas, b_qtls, args.var_explained)
@@ -456,8 +470,8 @@ def main(args):
         pred_func = fit_enet
     elif args.linear_model == "ridge":
         pred_func = fit_ridge
-    elif args.linear_model == "truqtl":
-        pred_func = fit_truqtl
+    elif args.linear_model == "trueqtl":
+        pred_func = fit_trueqtl
     else:
         raise ValueError("Invalid linear model")
 
