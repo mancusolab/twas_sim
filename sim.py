@@ -16,7 +16,7 @@ from sklearn import linear_model as lm
 mvn = stats.multivariate_normal
 
 
-def fit_lasso(Z, y, h2g, b_qtls = None):
+def fit_lasso(Z, y, h2g, b_qtls=None):
     """
     Infer eqtl coefficients using LASSO regression. Uses the PLINK-style coordinate descent algorithm
     that is bootstrapped by the current h2g estimate.
@@ -30,7 +30,7 @@ def fit_lasso(Z, y, h2g, b_qtls = None):
     return _fit_sparse_penalized_model(Z, y, h2g, lm.Lasso)
 
 
-def fit_enet(Z, y, h2g, b_qtls = None):
+def fit_enet(Z, y, h2g, b_qtls=None):
     """
     Infer eqtl coefficients using ElasticNet regression. Uses the PLINK-style coordinate descent algorithm
     that is bootstrapped by the current h2g estimate.
@@ -44,7 +44,7 @@ def fit_enet(Z, y, h2g, b_qtls = None):
     return _fit_sparse_penalized_model(Z, y, h2g, lm.ElasticNet)
 
 
-def fit_ridge(Z, y, h2g, b_qtls = None):
+def fit_ridge(Z, y, h2g, b_qtls=None):
     """
     Infer eqtl coefficients using Ridge regression. Uses the optimal ridge penality defined from REML.
 
@@ -63,7 +63,8 @@ def fit_ridge(Z, y, h2g, b_qtls = None):
 
     return coef, r2, logl
 
-def fit_trueqtl(Z, y, h2g, b_qtls = None):
+
+def fit_trueqtl(Z, y, h2g, b_qtls=None):
     """
     Return true latent eQTL effects for the causal gene.
 
@@ -73,6 +74,7 @@ def fit_trueqtl(Z, y, h2g, b_qtls = None):
     :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
     """
     return b_qtls, None, None
+
 
 def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso):
     """
@@ -235,11 +237,9 @@ def sim_gwasfast(L, ngwas, b_qtls, var_explained, n_snps):
     :param var_explained: float the amount of phenotypic variance explained by genetic component of gene expression
     :param n_snps: the total number of snps at the region
 
-
     :return: (pandas.DataFrame, float) estimated GWAS beta and standard error, causal GE effect
 
     """
-
     if var_explained > 0:
         alpha = np.random.normal(loc=0, scale=1)
     else:
@@ -252,17 +252,17 @@ def sim_gwasfast(L, ngwas, b_qtls, var_explained, n_snps):
     if var_explained > 0:
         s2e = s2g * ((1.0 / var_explained) - 1)
     else:
-        s2e = 1.0 # var[y]; could be diff from 1, but heere we assume 1
+        s2e = 1.0  # var[y]; could be diff from 1, but heere we assume 1
 
     dof = ngwas - 1
     tau2 = s2e / ngwas
-    se_gwas = np.sqrt(invgamma.rvs(a=0.5 * dof, scale=0.5 * dof * tau2, size = n_snps))
-    DLt = se_gwas[:,np.newaxis] * L.T
+    se_gwas = np.sqrt(invgamma.rvs(a=0.5 * dof, scale=0.5 * dof * tau2, size=n_snps))
+    DLt = se_gwas[:, np.newaxis] * L.T
 
-    beta_adj = mdot([DLt, L, (beta / se_gwas)]) # D @ Lt @ L @ inv(D) @ beta
+    beta_adj = mdot([DLt, L, (beta / se_gwas)])  # D @ Lt @ L @ inv(D) @ beta
 
     # b_gwas ~ N(D @ Lt @ L inv(D) @ beta, D @ Lt @ L @ D), but fast
-    b_gwas = beta_adj + np.dot(DLt, np.random.normal(size = (n_snps,)))
+    b_gwas = beta_adj + np.dot(DLt, np.random.normal(size=(n_snps,)))
 
     Z = b_gwas / se_gwas
     pvals = 2 * stats.norm.sf(abs(Z))
@@ -272,8 +272,7 @@ def sim_gwasfast(L, ngwas, b_qtls, var_explained, n_snps):
     return (gwas, alpha)
 
 
-
-def sim_gwas(L, ngwas, b_qtls, var_explained):
+def sim_gwas(L, ngwas, b_qtls, var_explained, n_snps=None):
     """
     Simulate a GWAS using `ngwas` individuals such that genetics explain `var_explained` of phenotype.
 
@@ -441,7 +440,7 @@ def main(args):
 
         # compute LD-scores for reports
         # weird dask issues require us to call compute here
-        ldscs = np.sum(LD ** 2, axis=0).compute()
+        ldscs = np.sum(LD**2, axis=0).compute()
 
         return (L, mafs, ldscs, bim)
 
@@ -461,7 +460,7 @@ def main(args):
         gwas, alpha = sim_gwasfast(L, args.ngwas, b_qtls, args.var_explained, p)
     else:
         # otherwise simulate genotype data from MVN and do pheno sim + scan
-        gwas, alpha = sim_gwas(L, args.ngwas, b_qtls, args.var_explained)
+        gwas, alpha = sim_gwas(L, args.ngwas, b_qtls, args.var_explained, p)
 
     # sample eQTL reference pop genotypes from MVN approx and perform eQTL scan + fit penalized linear model
     if args.linear_model == "lasso":
