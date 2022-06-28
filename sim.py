@@ -58,10 +58,7 @@ class NumCausalSNPs:
         return
 
     def __repr__(self):
-        if self._is_pct:
-            return f"NumCausals := {self._value * 100}% of observed SNPs"
-        else:
-            return f"NumCausals := {self._value} SNPs"
+        return str(self)
 
     def __str__(self):
         if self._is_pct:
@@ -329,13 +326,17 @@ def regress(Z, pheno):
 def sim_gwasfast(L, ngwas, beta, var_explained):
     """
     Simulate a GWAS using `ngwas` individuals such that genetics explain `var_explained` of phenotype.
+        This function differs from `sim_gwas` in that it samples GWAS summary statistics directly
+        Using an MVN approximation, rather than generating genotype, phenotype, and performing
+        a marginal regression for each simulated variant. Runtime should be `O(p^2)` where
+        `p` is number of variants.
 
     :param L: numpy.ndarray lower cholesky factor of the p x p LD matrix for the population
     :param ngwas: int the number of GWAS genotypes to sample
     :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
     :param var_explained: float the amount of phenotypic variance explained by genetic component of gene expression
 
-    :return: (pandas.DataFrame, float) estimated GWAS beta and standard error, causal GE effect
+    :return: (pandas.DataFrame) estimated GWAS beta and standard error
 
     """
 
@@ -369,13 +370,18 @@ def sim_gwasfast(L, ngwas, beta, var_explained):
 def sim_gwas(L, ngwas, beta, var_explained):
     """
     Simulate a GWAS using `ngwas` individuals such that genetics explain `var_explained` of phenotype.
+        This function approximates genotypes under an LD structure using an MVN model. Generating
+        genotype for `ngwas` individuals takes `O(np^2)` time. Simulating a phenotype and
+        performing marginal regression for each variant takes `O(np)` time. If `n > p`, which is
+        typically the case for GWAS (at a fixed region), this function should be slower than `sim_gwasfast`,
+        which requires `O(p^2)` time to simulate GWAS summary results.
 
     :param L: numpy.ndarray lower cholesky factor of the p x p LD matrix for the population
     :param ngwas: int the number of GWAS genotypes to sample
     :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
     :param var_explained: float the amount of phenotypic variance explained by genetic component of gene expression
 
-    :return: (pandas.DataFrame, float) estimated GWAS beta and standard error, causal GE effect
+    :return: (pandas.DataFrame) estimated GWAS beta and standard error
     """
     Z_gwas = sim_geno(L, ngwas)
 
