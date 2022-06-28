@@ -15,10 +15,18 @@ from scipy.stats import invgamma
 from sklearn import linear_model as lm
 
 
-class NumCausalSNPsAction(ap.Action):
-    # custom action to parse the number of causal SNPs with percentage and average modifiers
-    def __call__(self, parser, namespace, values, option_string=None):
-        match = re.match("^([0-9]+)(pct|avg)?$", values, flags=re.IGNORECASE)
+class NumCausalSNPs:
+    """Helper class to keep track of the number of causal variants from the command line.
+    Seems like overkill, but generalizes the internal logic to handle either:
+        1) finite number of causal SNPs
+        2) percentage of total SNPs at locus
+        3) a random value sampled from truncated Poisson, with lower-bound of 1
+    """
+
+    def __init__(self, value):
+        self._is_pct = False
+
+        match = re.match("^([0-9]+)(pct|avg)?$", value, flags=re.IGNORECASE)
         if match:
             num_tmp = float(match.group(1))  # num
             num_mod = match.group(2)  # modifier
@@ -28,6 +36,8 @@ class NumCausalSNPsAction(ap.Action):
                     if not (0 < num_tmp <= 100):
                         raise ValueError("Percentage of causal SNPs must be in (0, 1].")
                     num_tmp /= 100.0
+                    self._value = num_tmp
+                    self._is_pct = True
                 elif num_mod == "AVG":
                     if num_tmp == 0:
                         raise ValueError(
@@ -37,13 +47,44 @@ class NumCausalSNPsAction(ap.Action):
                     while num_smpl == 0:
                         # sample from poisson using average num of causals truncated below by 1
                         num_smpl = np.random.poisson(num_tmp)
-                    num_tmp = int(num_smpl)
+                    self._value = int(num_smpl)
             else:
-                num_tmp = int(num_tmp)
+                if num_tmp < 1:
+                    raise ValueError("Number of causal SNPs must be at least 1")
+                self._value = int(num_tmp)
         else:
             raise ValueError("Invalid number of causal SNPs")
 
-        setattr(namespace, self.dest, num_tmp)
+        return
+
+    def __repr__(self):
+        if self._is_pct:
+            return f"NumCausals := {self._value * 100}% of observed SNPs"
+        else:
+            return f"NumCausals := {self._value} SNPs"
+
+    def __str__(self):
+        if self._is_pct:
+            return f"NumCausals := {self._value * 100}% of observed SNPs"
+        else:
+            return f"NumCausals := {self._value} SNPs"
+
+    def get(self, n_snps):
+        if self._is_pct:
+            return int(np.ceil(self._value * n_snps))
+        else:
+            # handle case where either avg number of causals or explicit number of causals
+            # is greater than observed number
+            return min(int(self._value), n_snps)
+
+
+class NumCausalSNPsAction(ap.Action):
+    """Custom action to parse the number of causal SNPs with percentage and average modifiers"""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        ncausals = NumCausalSNPs(values)
+        setattr(namespace, self.dest, ncausals)
+        return
 
 
 def compute_s2g(L, beta):
@@ -191,7 +232,8 @@ def sim_beta(L, ncausal, eqtl_h2, rescale=True):
     Sample qtl effects under a specified architecture.
 
     :param L: numpy.ndarray lower cholesky factor of the p x p LD matrix for the population
-    :param ncausal: float number of causal SNPs to select. If 0 < num_causal <= 1, then recast as percentage.
+    :param ncausal: NumCausalSNPs class containing number of causal SNPs to select.
+        Encapsulates diff logic for integer, percentage, and averages.
     :param eqtl_h2: float the heritability of gene expression
     :param rescale: bool whether to rescale effects such that var(b V b) = h2 (default=True)
 
@@ -199,13 +241,7 @@ def sim_beta(L, ncausal, eqtl_h2, rescale=True):
     """
 
     n_snps = L.shape[0]
-
-    # simulate trait architecture
-    # kind of a hack to figure out if user specified 100pct and not 1 snp
-    if 0 < ncausal <= 1 and type(ncausal) is float:
-        n_qtls = int(np.ceil(ncausal * n_snps))
-    else:
-        n_qtls = int(ncausal)
+    n_qtls = ncausal.get(n_snps)
 
     # select which SNPs are causal
     c_qtls = np.random.choice(range(int(n_snps)), n_qtls)
@@ -533,14 +569,10 @@ def main(args):
     b_qtls = sim_beta(L_pop, args.ncausal, args.eqtl_h2, rescale=True)
 
     if args.var_explained > 0:
-        # we technically dont need to sample since alpha is determined by h2 and h2ge
-        # but this avoids +- sampling and Nick is lazy to look up API
-        alpha = np.random.normal(loc=0, scale=1)
-
-        # we -assume- that s2g for b_qtls == h2g(ge) [rescale=True above]
-        # thus we dont need to recompute s2g and can just rescale
-        s2g = args.eqtl_h2 * (alpha ** 2)
-        alpha *= np.sqrt(args.var_explained / s2g)
+        # we dont need to sample since alpha is determined by h2 and h2ge
+        # and we've already normalized b_qtls to be on h2g scale [rescale=True above]
+        sign = np.random.choice([-1, 1])
+        alpha = np.sqrt(args.var_explained / args.eqtl_h2) * sign
     else:
         alpha = 0.0
 
