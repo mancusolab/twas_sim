@@ -466,7 +466,6 @@ def compute_twas(gwas, coef, LD):
         z_twas = 0
         p_twas = 1
 
-
     return z_twas, p_twas
 
 
@@ -624,7 +623,7 @@ def main(args):
     med_chi2 = np.median((gwas.beta.values / gwas.se.values) ** 2)
 
     # compute LD for the TWAS test
-    LD_test = np.dot(L_test, L_test.T)
+    LD_test = np.dot(L_test.T, L_test)
 
     # compute ldscore -at- the causals
     causals = b_qtls != 0
@@ -656,15 +655,11 @@ def main(args):
     # output a summary that contains the actual TWAS test statistic
     df = pd.DataFrame(
         {
-            "sim": [args.sim],
-            "id": [args.locus],
-            "gwas": [name],
-            "linear_model": [args.linear_model],
-            "h2ge": [args.var_explained],
-            "snp_model": [args.ncausal],
-            "nsnps": [int(pop_p)],
             "ngwas": [args.ngwas],
+            "gwas.sim": [name],
             "nqtl": [args.nqtl],
+            "nsnps": [int(pop_p)],
+            "h2ge": [args.var_explained],
             "h2g": [args.eqtl_h2],
             "h2g.hat": [eqtl_h2g_hat],
             "avg.ldsc": [np.mean(ldscs)],
