@@ -6,23 +6,30 @@ else
     locus=1
 fi
 
+eval "$(conda shell.bash hook)"
+conda activate twas_sim
+source ~/init.sh
+
 # gene complexity of sampled region
 lower=5
 upper=20
 
-hapmap=~/src/twas_sim/HAPMAP_SNPS/
-loci=~/src/twas_sim/ind_loci.bed
-genes=~/src/twas_sim/glist-hg19.nodupe.autosome
+hapmap=/project/nmancuso_8/xwang505/twas_sim/HAPMAP_SNPS/
+loci=/project/nmancuso_8/xwang505/twas_sim/ind_loci.bed
+genes=/project/nmancuso_8/xwang505/twas_sim/glist-hg19.nodupe.autosome
 
 # point to plink installation
-plink=~/bin/plink2/plink2
+plink=/project/nmancuso_8/xwang505/tools/plink2
 
 # point to reference panel dir
 okg=/project/nmancuso_8/data/LDSC/1000G_EUR_Phase3_plink/
 
 # PARAMETERS
 # change to point to results/output directory
-odir=~/projects/scratch/twas_sim/
+odir=/scratch1/xwang505/TWAS/genotype_check
+
+# minimum number of SNPs that need to exist for simulation
+MIN_SNPS=450
 
 N=100000 # N GWAS
 NGE=500 # N EQTL
@@ -31,7 +38,8 @@ H2G=0.1 # eQTL h2g
 H2GE=0.001 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
 LINEAR_MODEL=trueqtl
 
-while [ ! -e $odir/twas_sim${SIM}_loci${locus}.bim ]
+# get genotype
+while [ ! -e $odir/twas_sim${locus}.bim ]
 do
     echo "attempting ${locus}"
     python sample_genes.py $loci $genes -l $lower -u $upper -o $odir/gene.${locus}.list --loc_output $odir/locus.${locus}.txt
@@ -54,22 +62,27 @@ do
     --from-bp $locus_start \
     --to-bp $locus_stop \
     --make-bed \
-    --out $odir/twas_sim${SIM}_loci${locus} \
+    --out $odir/twas_sim${locus} \
     --snps-only \
     --hwe midp 1e-5 \
     --geno 0.01 \
     --maf 0.01 \
     --allow-no-sex \
     --memory 2048 \
-    --keep ~/src/twas_sim/EUR.samples \
+    --keep /project/nmancuso_8/xwang505/twas_sim/EUR.samples \
     --extract $hapmap/hm.$numchr.snp \
     --force-intersect
 
 done
 
+OUT=/scratch1/xwang505/TWAS/res_check/twas_sim${locus}
+rm -rf $OUT*
+oloci=/scratch1/xwang505/TWAS/genotype_check/twas_sim${locus}
+
+# run simulation
 echo "running fast simulation"
-python sim.py \
-$odir/twas_sim${SIM}_loci${locus} \
+python /project/nmancuso_8/xwang505/twas_sim/sim.py \
+$oloci \
 --ngwas $N \
 --nqtl $NGE \
 --ncausal $MODEL \
@@ -77,15 +90,15 @@ $odir/twas_sim${SIM}_loci${locus} \
 --fast-gwas-sim \
 --var-explained $H2GE \
 --linear-model $LINEAR_MODEL \
---output $odir/fast
+--output $OUT.fast
 
 echo "running std simulation"
-python sim.py \
-$odir/twas_sim${SIM}_loci${locus} \
+python /project/nmancuso_8/xwang505/twas_sim/sim.py \
+$oloci \
 --ngwas $N \
 --nqtl $NGE \
 --ncausal $MODEL \
 --eqtl-h2 $H2G \
 --var-explained $H2GE \
 --linear-model $LINEAR_MODEL \
---output $odir/std
+--output $OUT.std
