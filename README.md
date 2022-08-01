@@ -64,7 +64,7 @@ The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns
 | ------           | ------ |
 | sim              | Simulation index |
 | id               | Locus index |
-| gwas             | GWAS mode |
+| gwas.sim         | GWAS mode |
 | real.time        | Real time spent on the current simulation |
 | cpu.time         | CPU time spent on the current simulation |
 | linear_model     | Linear model used in the current simulation |
