@@ -74,7 +74,7 @@ The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns
 | ngwas            | GWAS sample size |
 | nqtl             | eQTL sample size  |
 | h2g              | Narrow-sense heritability of GE |
-| h2g              | Predicted narrow-sense heritability of GE |
+| h2g.hat          | Predicted narrow-sense heritability of GE |
 | mean.ldsc        | Average LD-score at the region |
 | min.gwas.p       | Minimum GWAS SNP p-value |
 | mean.gwas.chi2   | Mean GWAS SNP chi-sq |
