@@ -68,7 +68,7 @@ The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns
 | real.time        | Real time spent on the current simulation |
 | cpu.time         | CPU time spent on the current simulation |
 | linear_model     | Linear model used in the current simulation |
-| h2ge             | variance explained in trait by GE |
+| h2ge             | Variance explained in trait by GE |
 | snp_model        | SNP model used in the current simulation |
 | nsnps            | Number of SNPs |
 | ngwas            | GWAS sample size |
