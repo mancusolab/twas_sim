@@ -666,7 +666,7 @@ def main(args):
         {
             "sim": [args.sim],
             "id": [args.locus],
-            "gwas": [name],
+            "gwas.sim": [name],
             "real.time": [real_time],
             "cpu.time": [cpu_time],
             "linear_model": [args.linear_model],
