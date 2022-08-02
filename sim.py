@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+import tracemalloc
 import time
 import argparse as ap
 import re
@@ -15,6 +16,7 @@ from scipy import stats
 from scipy.stats import invgamma
 from sklearn import linear_model as lm
 
+tracemalloc.start()
 real_time_start = time.time()
 cpu_time_start = time.process_time()
 
@@ -638,11 +640,17 @@ def main(args):
     # compute TWAS statistics
     z_twas, p_twas = compute_twas(gwas, coef, LD_test)
 
-    # compute real time and cpu time
+    # compute time and memory usage
+    tracemalloc.stop()
     real_time_end = time.time()
-    real_time = round(real_time_end - real_time_start, 2)
     cpu_time_end = time.process_time()
+    memory = round(tracemalloc.get_tracemalloc_memory()/1024, 2)
+    real_time = round(real_time_end - real_time_start, 2)
     cpu_time = round(cpu_time_end - cpu_time_start, 2)
+
+    print("Memory used: ", tracemalloc.get_tracemalloc_memory(), "MiB")
+    print("Real time used: ", round(real_time_end - real_time_start, 2), "seconds")
+    print("CPU time used: ", round(cpu_time_end - cpu_time_start, 2), "seconds")
 
     # output the GWAS, eQTL, and LASSO estimates
     output = bim.drop(columns=["cm", "i"])
@@ -667,6 +675,7 @@ def main(args):
             "sim": [args.sim],
             "id": [args.locus],
             "gwas.sim": [name],
+            "memory": [memory],
             "real.time": [real_time],
             "cpu.time": [cpu_time],
             "linear_model": [args.linear_model],
