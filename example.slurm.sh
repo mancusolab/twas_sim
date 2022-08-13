@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --ntasks=1
-#SBATCH --time=10:00:00
-#SBATCH --mem=32Gb
-#SBATCH --array=1-2000
+#SBATCH --time=5:00:00
+#SBATCH --mem=64Gb
+#SBATCH --array=1-1920
 
 if [ ! $SLURM_ARRAY_TASK_ID ]; then
   NR=$1
@@ -36,14 +36,35 @@ tdir=/scratch1/xwang505/tmp/
 
 # change to point to results/output directory
 odir=/scratch1/xwang505/TWAS/genotype
+rdir=/scratch1/xwang505/TWAS/res
 
 # minimum number of SNPs that need to exist for simulation
 MIN_SNPS=450
 
+# run simulation
+# PARAMETERS
+for IDX in `seq $start $stop`
+do
+  params=`sed "$((IDX+1))q;d" /project/nmancuso_8/xwang505/twas_sim/param_twas_sim.tsv`
+  echo "$((IDX+1)) ${params}"
+  set -- junk $params
+  shift
+
+  # SIM	ID	N	NGE	MODEL	H2G	H2GE	LINEAR_MODEL
+  SIM=$1
+  IDX=$2
+  N=$3 # N GWAS
+  NGE=$4 # N EQTL
+  MODEL=$5 # eQTL model; see sim.py for details
+  H2G=$6 # eQTL h2g
+  H2GE=$7 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
+  LINEAR_MODEL=$8
+done
+
 # get genotype
 for IDX in `seq $start $stop`
 do
-  while [[ ! -e $odir/twas_sim${SIM}_loci${locus}.bim &&  `wc -l $odir/twas_sim${SIM}_loci${locus}.bim | awk '{print $1}'` -gt $MIN_SNPS ]]
+  while [[ ! -e $odir/twas_sim_loci${IDX}.bim ]]
   do
     echo "attempting ${IDX}"
     python /project/nmancuso_8/xwang505/twas_sim/sample_genes.py \
@@ -83,36 +104,19 @@ do
     --extract $hapmap/hm.$numchr.snp \
     --force-intersect
 
-  done
+    if [[ `wc -l $odir/twas_sim_loci${IDX}.bim | awk '{print $1}'` -lt $MIN_SNPS ]];
+    then
+      rm $odir/twas_sim_loci${IDX}.{bim,bed,fam}
+    fi
 
+  done
 done
 
-# run simulation
 for IDX in `seq $start $stop`
 do
-  # PARAMETERS
-  params=`sed "$((IDX+1))q;d" /project/nmancuso_8/xwang505/twas_sim/param_twas_sim.tsv`
-  echo "$((IDX+1)) ${params}"
-  set -- junk $params
-  shift
-
-  # SIM	ID	N	NGE	MODEL	H2G	H2GE	LINEAR_MODEL
-  SIM=$1
-  locus=$2
-  N=$3 # N GWAS
-  NGE=$4 # N EQTL
-  MODEL=$5 # eQTL model; see sim.py for details
-  H2G=$6 # eQTL h2g
-  H2GE=$7 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
-  LINEAR_MODEL=$8
-
-  OUT=/scratch1/xwang505/TWAS/res/twas_sim${SIM}_loci${locus}
-  rm -rf $OUT*
-  oloci=/scratch1/xwang505/TWAS/genotype/twas_sim_loci${locus}
-
   echo "running fast simulation"
   python /project/nmancuso_8/xwang505/twas_sim/sim.py \
-  $oloci \
+  ${odir}/twas_sim_loci${IDX} \
   --ngwas $N \
   --nqtl $NGE \
   --ncausal $MODEL \
@@ -120,23 +124,25 @@ do
   --fast-gwas-sim \
   --var-explained $H2GE \
   --linear-model $LINEAR_MODEL \
-  --seed ${locus} \
-  --locus ${locus} \
+  --seed ${IDX} \
+  --locus ${IDX} \
   --sim ${SIM} \
-  --output $OUT.fast
+  --output ${rdir}/twas_sim${SIM}_loci${IDX}.fast
 
   echo "running std simulation"
   python /project/nmancuso_8/xwang505/twas_sim/sim.py \
-  $oloci \
+  ${odir}/twas_sim_loci${IDX} \
   --ngwas $N \
   --nqtl $NGE \
   --ncausal $MODEL \
   --eqtl-h2 $H2G \
   --var-explained $H2GE \
   --linear-model $LINEAR_MODEL \
-  --seed ${locus} \
-  --locus ${locus} \
+  --seed ${IDX} \
+  --locus ${IDX} \
   --sim ${SIM} \
-  --output $OUT.std
-
+  --output ${rdir}/twas_sim${SIM}_loci${IDX}.std
 done
+
+#clean up!
+rm ${odir}/twas_sim_loci${IDX}*
