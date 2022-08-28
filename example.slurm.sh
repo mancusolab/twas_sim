@@ -59,11 +59,9 @@ do
   H2G=$6 # eQTL h2g
   H2GE=$7 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
   LINEAR_MODEL=$8
-done
 
-# get genotype
-for IDX in `seq $start $stop`
-do
+
+  # get genotype
   while [[ ! -e $odir/twas_sim_loci${IDX}.bim ]]
   do
     echo "attempting ${IDX}"
@@ -110,10 +108,8 @@ do
     fi
 
   done
-done
 
-for IDX in `seq $start $stop`
-do
+  # run simulation
   echo "running fast simulation"
   python /project/nmancuso_8/xwang505/twas_sim/sim.py \
   ${odir}/twas_sim_loci${IDX} \
