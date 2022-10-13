@@ -17,44 +17,36 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 
 `sim.py` is the actual simulator. Its usage is below:
 
-    usage: sim.py [-h] [--eqtl-prefix EQTL_PREFIX] [--test-prefix TEST_PREFIX] [--fast-gwas-sim]
-              [--ngwas NGWAS] [--nqtl NQTL] [--ncausal NCAUSAL] [--ld-ridge LD_RIDGE]
-              [--linear-model {lasso,enet,ridge,trueqtl}] [--eqtl-h2 EQTL_H2]
-              [--var-explained VAR_EXPLAINED] [-o OUTPUT] [--seed SEED] [--sim SIM]
-              [--locus LOCUS]
+    usage: sim.py [-h] [--eqtl-prefix EQTL_PREFIX] [--test-prefix TEST_PREFIX] [--fast-gwas-sim] [--ngwas NGWAS] [--nqtl NQTL] [--ncausal NCAUSAL] [--ld-ridge LD_RIDGE]
+              [--linear-model {lasso,enet,ridge,trueqtl}] [--eqtl-h2 EQTL_H2] [--var-explained VAR_EXPLAINED] [-o OUTPUT] [-c] [--seed SEED]
               prefix
 
     Simulate TWAS using real genotype data
-
+    
     positional arguments:
       prefix                Prefix to PLINK-formatted data for GWAS LD information
-
+    
     optional arguments:
       -h, --help            show this help message and exit
       --eqtl-prefix EQTL_PREFIX
-                          Optional prefix to PLINK-formatted data for eQTL LD information.
-                          Otherwise use GWAS LD. (default: None)
+                            Optional prefix to PLINK-formatted data for eQTL LD information. Otherwise use GWAS LD. (default: None)
       --test-prefix TEST_PREFIX
-                          Optional prefix to PLINK-formatted data for LD information in TWAS test
-                          statistic. Otherwise use GWAS LD. (default: None)
+                            Optional prefix to PLINK-formatted data for LD information in TWAS test statistic. Otherwise use GWAS LD. (default: None)
       --fast-gwas-sim       If set then simulate GWAS summary data directly from LD (default: False)
       --ngwas NGWAS         Sample size for GWAS panel (default: 100000)
       --nqtl NQTL           Sample size for eQTL panel (default: 500)
-      --ncausal NCAUSAL     Number of causal SNPs for gene expression/trait. Can represent explicit
-                          number (e.g., 1, 10), a percentage using the 'pct' modifier (e.g.,
-                          '1pct', '10pct'), or an average under a truncated Poisson model (e.g.,
-                          '1avg', '10avg'). (default: 1)
+      --ncausal NCAUSAL     Number of causal SNPs for gene expression/trait. Can represent explicit number (e.g., 1, 10), a percentage using the 'pct' modifier (e.g., '1pct', '10pct'), or an average under a
+                            truncated Poisson model (e.g., '1avg', '10avg'). (default: 1)
       --ld-ridge LD_RIDGE   Offset to add to LD Diagonal (default: 0.1)
       --linear-model {lasso,enet,ridge,trueqtl}
-                          Linear model to predict gene expression from genotype. (default: lasso)
+                            Linear model to predict gene expression from genotype. (default: lasso)
       --eqtl-h2 EQTL_H2     The narrow-sense heritability of gene expression (default: 0.1)
       --var-explained VAR_EXPLAINED
-                          Variance explained in complex trait by gene expression (default: 0.01)
+                            Variance explained in complex trait by gene expression (default: 0.01)
       -o OUTPUT, --output OUTPUT
-                          Output prefix (default: None)
+                            Output prefix (default: None)
+      -c, --compress        Compress output (gzip) (default: False)
       --seed SEED           Seed for random number generation (default: None)
-      --sim SIM             Simulation index for post-hoc analysis (default: None)
-      --locus LOCUS         locus index for post-hoc analysis (default: None)
 
 The output will be a two tab-delimited reports.
 
