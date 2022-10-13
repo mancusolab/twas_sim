@@ -15,8 +15,6 @@ from scipy import stats
 from scipy.stats import invgamma
 from sklearn import linear_model as lm
 
-real_time_start = time.time()
-cpu_time_start = time.process_time()
 
 class NumCausalSNPs:
     """Helper class to keep track of the number of causal variants from the command line.
@@ -536,9 +534,10 @@ def main(args):
         help="Variance explained in complex trait by gene expression",
     )
     argp.add_argument("-o", "--output", help="Output prefix")
+    argp.add_argument(
+        "-c", "--compress", action="store_true", default=False, help="Compress output (gzip)"
+    )
     argp.add_argument("--seed", type=int, help="Seed for random number generation")
-    argp.add_argument("--sim", type=int, help="Simulation index for post-hoc analysis")
-    argp.add_argument("--locus", type=int, help="locus index for post-hoc analysis")
 
     args = argp.parse_args(args)
 
@@ -570,6 +569,8 @@ def main(args):
         return (L, mafs, ldscs, bim)
 
     np.random.seed(args.seed)
+    real_time_start = time.time()
+    cpu_time_start = time.process_time()
 
     # compute GWAS LD information from reference genotype data
     L_pop, mafs, ldscs, bim = get_ld(args.prefix)
@@ -615,9 +616,9 @@ def main(args):
         L_test = L_pop
 
     if args.fast_gwas_sim:
-        name, sim_func = ("fast", sim_gwasfast)
+        sim_mode, sim_func = ("fast", sim_gwasfast)
     else:
-        name, sim_func = ("std", sim_gwas)
+        sim_mode, sim_func = ("std", sim_gwas)
 
     gwas = sim_func(L_pop, args.ngwas, beta, args.var_explained)
 
@@ -650,7 +651,7 @@ def main(args):
     output["maf"] = mafs
     output["ld.score"] = ldscs
     output["ld.score.causal"] = ldsc_causals
-    output["gwas.sim"] = [name] * len(mafs)
+    output["gwas.sim"] = [sim_mode] * len(mafs)
     output["gwas.true"] = b_qtls * alpha
     output["gwas.beta"] = gwas.beta
     output["gwas.se"] = gwas.se
@@ -660,14 +661,10 @@ def main(args):
     output["eqtl.model"] = [args.linear_model] * len(mafs)
     output["eqtl.model.beta"] = coef
 
-    output.to_csv("{}.scan.tsv".format(args.output), sep="\t", index=False)
-
     # output a summary that contains the actual TWAS test statistic
     df = pd.DataFrame(
         {
-            "sim": [args.sim],
-            "id": [args.locus],
-            "gwas.sim": [name],
+            "gwas.sim": [sim_mode],
             "real.time": [real_time],
             "cpu.time": [cpu_time],
             "linear_model": [args.linear_model],
@@ -688,7 +685,14 @@ def main(args):
         }
     )
 
-    df.to_csv("{}.summary.tsv".format(args.output), sep="\t", index=False)
+    scan_out = f"{args.output}.scan.tsv"
+    summary_out = f"{args.output}.summary.tsv"
+    if args.compress:
+        scan_out += ".gz"
+        summary_out += ".gz"
+
+    output.to_csv(scan_out, sep="\t", index=False)
+    df.to_csv(summary_out, sep="\t", index=False)
 
     return 0
 
