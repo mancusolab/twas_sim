@@ -34,14 +34,15 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
                             Optional prefix to PLINK-formatted data for eQTL LD information.
                             Otherwise use GWAS LD. (default: None)
       --test-prefix TEST_PREFIX
-                            Optional prefix to PLINK-formatted data for LD information in TWAS test statistic.
-                            Otherwise use GWAS LD. (default: None)
+                            Optional prefix to PLINK-formatted data for LD information in TWAS
+                            test statistic.  Otherwise use GWAS LD. (default: None)
       --fast-gwas-sim       If set then simulate GWAS summary data directly from LD (default: False)
       --ngwas NGWAS         Sample size for GWAS panel (default: 100000)
       --nqtl NQTL           Sample size for eQTL panel (default: 500)
-      --ncausal NCAUSAL     Number of causal SNPs for gene expression/trait. Can represent explicit number (e.g., 1, 10),
-                            a percentage using the 'pct' modifier (e.g., '1pct', '10pct'), or an average under a
-                            truncated Poisson model (e.g., '1avg', '10avg'). (default: 1)
+      --ncausal NCAUSAL     Number of causal SNPs for gene expression/trait. Can represent explicit
+                            number (e.g., 1, 10), a percentage using the 'pct' modifier (e.g., '1pct',
+                            '10pct'), or an average under a truncated Poisson model (e.g., '1avg',
+                            '10avg'). (default: 1)
       --ld-ridge LD_RIDGE   Offset to add to LD Diagonal (default: 0.1)
       --linear-model {lasso,enet,ridge,trueqtl}
                             Linear model to predict gene expression from genotype. (default: lasso)
