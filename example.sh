@@ -12,7 +12,7 @@ genes=glist-hg19.nodupe.autosome
 
 # PARAMETERS
 # !!! change to point to results/output directory !!!
-odir=/scratch1/xwang505/TWAS/
+odir=/project/nmancuso_8/xwang505/twas_sim/output_examplesh/
 
 # !!! change to point to plink installation !!!
 plink=/project/nmancuso_8/xwang505/tools/plink2
@@ -77,8 +77,9 @@ python sim.py \
     --ncausal $MODEL \
     --eqtl-h2 $H2G \
     --fast-gwas-sim \
-    --var-explained $H2GE \
+    --h2ge $H2GE \
     --linear-model $LINEAR_MODEL \
+    --genotype \
     --output ${odir}/twas_sim_loci${IDX}
 
 # remove temporary genotype data
