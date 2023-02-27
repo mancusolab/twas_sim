@@ -15,6 +15,8 @@ from scipy import stats
 from scipy.stats import invgamma
 from sklearn import linear_model as lm
 
+import importlib.util
+import subprocess
 
 class NumCausalSNPs:
     """Helper class to keep track of the number of causal variants from the command line.
@@ -102,7 +104,7 @@ def compute_s2g(L, beta):
     return s2g
 
 
-def fit_lasso(Z, y, h2g, b_qtls=None):
+def fit_lasso(Z, y, h2g, b_qtls, args=None):
     """
     Infer eqtl coefficients using LASSO regression. Uses the PLINK-style coordinate descent algorithm
     that is bootstrapped by the current h2g estimate.
@@ -117,7 +119,7 @@ def fit_lasso(Z, y, h2g, b_qtls=None):
     return _fit_sparse_penalized_model(Z, y, h2g, lm.Lasso)
 
 
-def fit_enet(Z, y, h2g, b_qtls=None):
+def fit_enet(Z, y, h2g, b_qtls, args=None):
     """
     Infer eqtl coefficients using ElasticNet regression. Uses the PLINK-style coordinate descent algorithm
     that is bootstrapped by the current h2g estimate.
@@ -132,7 +134,7 @@ def fit_enet(Z, y, h2g, b_qtls=None):
     return _fit_sparse_penalized_model(Z, y, h2g, lm.ElasticNet)
 
 
-def fit_ridge(Z, y, h2g, b_qtls=None):
+def fit_ridge(Z, y, h2g, b_qtls, args=None):
     """
     Infer eqtl coefficients using Ridge regression. Uses the optimal ridge penality defined from REML.
 
@@ -153,7 +155,7 @@ def fit_ridge(Z, y, h2g, b_qtls=None):
     return coef, r2, logl
 
 
-def fit_trueqtl(Z, y, h2g, b_qtls=None):
+def fit_trueqtl(Z, y, h2g, b_qtls, args=None):
     """
     Return true latent eQTL effects for the causal gene.
 
@@ -166,7 +168,7 @@ def fit_trueqtl(Z, y, h2g, b_qtls=None):
     return b_qtls, None, None
 
 
-def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso):
+def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso, args=None):
     """
     Infer eqtl coefficients using L1/L2 penalized regression. Uses the PLINK-style coordinate descent algorithm
     that is bootstrapped by the current h2g estimate.
@@ -208,6 +210,24 @@ def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso):
 
     return coef, r2, logl
 
+def fit_external(Z, y, h2g, b_qtls, args):
+    lib_choice = "external"
+    if args.external_mod_type == "python":
+        load_mod = importlib.import_module(lib_choice)
+        coef, r2, logl = load_mod.external_module(Z, y, h2g, b_qtls=None)
+        return coef, r2, logl
+    elif args.external_mod_type == "R":
+        Z_out = f"{args.output}.eqtl.genotype.txt.gz" # Z_out = "eqtl.genotype.txt.gz", example: twas_sim_loci1.eqtl.genotype.txt.gz
+        np.savetxt(Z_out,Z,fmt='%.5f')
+        y_out = f"{args.output}.eqtl.gexpr.txt.gz" # y_out = "eqtl.gexpr.txt.gz"
+        np.savetxt(y_out,y,fmt='%.5f')
+        subprocess.call("Rscript external.R "+str(args.IDX), shell=True)
+        path = f"{args.output}"
+        with open(f"{args.output}.external_coef.txt") as coef: # with open(path, "external_coef.txt") as coef:
+            coef = coef.readlines()
+        return coef, None, None
+    else:
+        raise ValueError("Unsupported external module")
 
 def _get_model_info(model, Z, y):
     """
@@ -257,7 +277,6 @@ def sim_beta(L, ncausal, eqtl_h2, rescale=True):
         b_qtls *= np.sqrt(eqtl_h2 / s2g)
 
     return b_qtls
-
 
 def sim_trait(g, h2g):
     """
@@ -325,9 +344,9 @@ def regress(Z, pheno):
     return gwas
 
 
-def sim_gwasfast(L, ngwas, beta, var_explained):
+def sim_gwasfast(L, ngwas, beta, h2ge):
     """
-    Simulate a GWAS using `ngwas` individuals such that genetics explain `var_explained` of phenotype.
+    Simulate a GWAS using `ngwas` individuals such that genetics explain `h2ge` of phenotype.
         This function differs from `sim_gwas` in that it samples GWAS summary statistics directly
         Using an MVN approximation, rather than generating genotype, phenotype, and performing
         a marginal regression for each simulated variant. Runtime should be `O(p^2)` where
@@ -336,7 +355,7 @@ def sim_gwasfast(L, ngwas, beta, var_explained):
     :param L: numpy.ndarray lower cholesky factor of the p x p LD matrix for the population
     :param ngwas: int the number of GWAS genotypes to sample
     :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
-    :param var_explained: float the amount of phenotypic variance explained by genetic component of gene expression
+    :param h2ge: float the amount of phenotypic variance explained by genetic component of gene expression
 
     :return: (pandas.DataFrame) estimated GWAS beta and standard error
 
@@ -346,8 +365,8 @@ def sim_gwasfast(L, ngwas, beta, var_explained):
 
     s2g = compute_s2g(L, beta)
 
-    if var_explained > 0:
-        s2e = s2g * ((1.0 / var_explained) - 1)
+    if h2ge > 0:
+        s2e = s2g * ((1.0 / h2ge) - 1)
     else:
         s2e = 1.0  # var[y]; could be diff from 1, but here we assume 1
 
@@ -369,9 +388,9 @@ def sim_gwasfast(L, ngwas, beta, var_explained):
     return gwas
 
 
-def sim_gwas(L, ngwas, beta, var_explained):
+def sim_gwas(L, ngwas, beta, h2ge):
     """
-    Simulate a GWAS using `ngwas` individuals such that genetics explain `var_explained` of phenotype.
+    Simulate a GWAS using `ngwas` individuals such that genetics explain `h2ge` of phenotype.
         This function approximates genotypes under an LD structure using an MVN model. Generating
         genotype for `ngwas` individuals takes `O(np^2)` time. Simulating a phenotype and
         performing marginal regression for each variant takes `O(np)` time. If `n > p`, which is
@@ -381,22 +400,21 @@ def sim_gwas(L, ngwas, beta, var_explained):
     :param L: numpy.ndarray lower cholesky factor of the p x p LD matrix for the population
     :param ngwas: int the number of GWAS genotypes to sample
     :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
-    :param var_explained: float the amount of phenotypic variance explained by genetic component of gene expression
+    :param h2ge: float the amount of phenotypic variance explained by genetic component of gene expression
 
     :return: (pandas.DataFrame) estimated GWAS beta and standard error
     """
     Z_gwas = sim_geno(L, ngwas)
 
-    # var_explained should only reflect that due to genetics
+    # h2ge should only reflect that due to genetics
     g = np.dot(Z_gwas, beta)
-    y = sim_trait(g, var_explained)
+    y = sim_trait(g, h2ge)
 
     gwas = regress(Z_gwas, y)
 
     return gwas
 
-
-def sim_eqtl(L, nqtl, b_qtls, eqtl_h2, linear_model):
+def sim_eqtl(L, b_qtls, args):
     """
     Simulate an eQLT study using `nqtl` individuals.
 
@@ -409,6 +427,9 @@ def sim_eqtl(L, nqtl, b_qtls, eqtl_h2, linear_model):
     :return:  (pandas.DataFrame, numpy.ndarray, float) DataFrame of eQTL scan, vector of fitted eQTL coefficients,
         and estimated h2g.
     """
+    nqtl = args.nqtl
+    eqtl_h2 = args.eqtl_h2
+    linear_model = args.linear_model
 
     Z_qtl = sim_geno(L, nqtl)
     n, p = [float(x) for x in Z_qtl.shape]
@@ -434,13 +455,15 @@ def sim_eqtl(L, nqtl, b_qtls, eqtl_h2, linear_model):
         pred_func = fit_ridge
     elif linear_model == "trueqtl":
         pred_func = fit_trueqtl
+    elif linear_model == "external":
+        pred_func = fit_external
     else:
         raise ValueError("Invalid linear model")
 
     # fit penalized to get predictive weights
-    coef, r2, logl = pred_func(Z_qtl, gexpr, h2g, b_qtls)
+    coef, r2, logl = pred_func(Z_qtl, gexpr, h2g, b_qtls, args)
 
-    return (eqtl, coef, h2g)
+    return (gexpr, eqtl, coef, h2g, Z_qtl)
 
 
 def compute_twas(gwas, coef, LD):
@@ -470,6 +493,22 @@ def compute_twas(gwas, coef, LD):
 
     return z_twas, p_twas
 
+def check_heritability(h2ge, beta, L):
+    """
+    Check if simulated heritability is consistant with user-specified heritability.
+
+    :param h2ge: float the amount of phenotypic variance explained by genetic component of gene expression
+    :param gwas: pandas.DataFrame containing estimated GWAS beta and standard error
+    :param L: numpy.ndarray lower cholesky factor of the p x p LD matrix for the population
+    """
+
+    # compute estimated heritability
+    # h2ge_tmp == beta @ L @ L.t @ beta.t
+    L_beta = np.dot(L.T, beta)
+    h2ge_tmp = np.dot(L_beta.T, L_beta)
+    print("h2ge:", h2ge, "h2ge_tmp:", h2ge_tmp)
+
+    return h2ge, h2ge_tmp
 
 def main(args):
     argp = ap.ArgumentParser(
@@ -495,12 +534,14 @@ def main(args):
         action="store_true",
         help="If set then simulate GWAS summary data directly from LD",
     )
-
     argp.add_argument(
         "--ngwas", default=100000, type=int, help="Sample size for GWAS panel"
     )
     argp.add_argument(
         "--nqtl", default=500, type=int, help="Sample size for eQTL panel"
+    )
+    argp.add_argument(
+        "--IDX", type=int, help="Simulation index"
     )
     argp.add_argument(
         "--ncausal",
@@ -517,9 +558,15 @@ def main(args):
     )
     argp.add_argument(
         "--linear-model",
-        choices=["lasso", "enet", "ridge", "trueqtl"],
+        choices=["lasso", "enet", "ridge", "trueqtl", "external"],
         default="lasso",
         help="Linear model to predict gene expression from genotype.",
+    )
+    argp.add_argument(
+        "--external-mod-type",
+        choices=["python", "R"],
+        default="R",
+        help="Optional prefix for external model type",
     )
     argp.add_argument(
         "--eqtl-h2",
@@ -528,15 +575,37 @@ def main(args):
         help="The narrow-sense heritability of gene expression",
     )
     argp.add_argument(
-        "--var-explained",
+        "--h2ge",
         default=0.01,
         type=float,
-        help="Variance explained in complex trait by gene expression",
+        help="Phenotypic variance explained by genetic component of gene expression",
+    )
+    argp.add_argument(
+        "--ld-model",
+        default=None,
+        action="store_true",
+        help="Optional prefix to generate gwas beta separately.",
+    )
+    argp.add_argument(
+        "--output-gexpr",
+        default=None,
+        action="store_true",
+        help="If set then output eQTL gene expression",
+    )
+    argp.add_argument(
+        "--user-defined-bqtl",
+        default=None,
+        help="Optional prefix to input estimated eQTL weights. Otherwise estimate eQTL weight.",
     )
     argp.add_argument("-o", "--output", help="Output prefix")
     argp.add_argument(
-        "-c", "--compress", action="store_true", default=False, help="Compress output (gzip)"
+        "-c",
+        "--compress",
+        action="store_true",
+        default=False,
+        help="Compress output (gzip)",
     )
+
     argp.add_argument("--seed", type=int, help="Seed for random number generation")
 
     args = argp.parse_args(args)
@@ -576,19 +645,27 @@ def main(args):
     L_pop, mafs, ldscs, bim = get_ld(args.prefix)
     pop_p = len(ldscs)
 
-    # simulate eQTLs
-    b_qtls = sim_beta(L_pop, args.ncausal, args.eqtl_h2, rescale=True)
-
-    if args.var_explained > 0:
+    if args.h2ge > 0 and not args.ld_model:
         # we dont need to sample since alpha is determined by h2 and h2ge
         # and we've already normalized b_qtls to be on h2g scale [rescale=True above]
         sign = np.random.choice([-1, 1])
-        alpha = np.sqrt(args.var_explained / args.eqtl_h2) * sign
+        alpha = np.sqrt(args.h2ge / args.eqtl_h2) * sign
     else:
         alpha = 0.0
 
-    # generate disease/trait effects wrt eQTL + mediation effect
-    beta = b_qtls * alpha
+    if args.user_defined_bqtl is not None:
+        with open("user_defined_bqtl.txt.gz") as b_qtls:
+                 b_qtls = b_qtls.readlines()
+                 return b_qtls, None, None
+    else:
+        # simulate eQTLs and generate disease/trait effects wrt eQTL + mediation effect
+        b_qtls = sim_beta(L_pop, args.ncausal, args.eqtl_h2, rescale=True)
+
+    # simulate beta
+    if args.ld_model is not None:
+        beta = sim_beta(L_pop, args.ncausal, args.eqtl_h2, rescale=True) # need to edit parameters to generate beta gwas
+    else:
+        beta = b_qtls * alpha
 
     # determine LD to use for eQTL ref panel
     if args.eqtl_prefix is not None:
@@ -600,9 +677,14 @@ def main(args):
         L_eqtl = L_pop
 
     # fit prediction model on simulated eQTL ref panel and grab eQTL coefficients
-    eqtl, coef, eqtl_h2g_hat = sim_eqtl(
-        L_eqtl, args.nqtl, b_qtls, args.eqtl_h2, args.linear_model
+    gexpr, eqtl, coef, eqtl_h2g_hat,Z_qtl = sim_eqtl(
+        L_eqtl, b_qtls, args
     )
+
+    # output eQTL gene expression
+    if args.output_gexpr is not None:
+        gexpr_out = f"{args.output}.eqtl.gexpr.txt.gz"
+        np.savetxt(gexpr_out,gexpr,fmt='%.5f')
 
     # determine LD to use for TWAS test
     if args.test_prefix is not None:
@@ -620,7 +702,7 @@ def main(args):
     else:
         sim_mode, sim_func = ("std", sim_gwas)
 
-    gwas = sim_func(L_pop, args.ngwas, beta, args.var_explained)
+    gwas = sim_func(L_pop, args.ngwas, beta, args.h2ge)
 
     # compute some global GWAS summary statistics
     min_p_val = np.min(gwas.pval.values)
@@ -639,6 +721,9 @@ def main(args):
 
     # compute TWAS statistics
     z_twas, p_twas = compute_twas(gwas, coef, LD_test)
+
+    # compute estimated heritability
+    h2ge, h2ge_tmp = check_heritability(args.h2ge, beta, L_pop)
 
     # compute real time and cpu time
     real_time_end = time.time()
@@ -668,7 +753,7 @@ def main(args):
             "real.time": [real_time],
             "cpu.time": [cpu_time],
             "linear_model": [args.linear_model],
-            "h2ge": [args.var_explained],
+            "h2ge": [args.h2ge],
             "snp_model": [args.ncausal],
             "nsnps": [int(pop_p)],
             "ngwas": [args.ngwas],
@@ -682,6 +767,7 @@ def main(args):
             "twas.z": [z_twas],
             "twas.p": [p_twas],
             "alpha": [alpha],
+            "h2ge_tmp":[h2ge_tmp]
         }
     )
 
@@ -699,3 +785,4 @@ def main(args):
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
+                      
