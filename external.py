@@ -15,26 +15,16 @@ from scipy import stats
 from scipy.stats import invgamma
 from sklearn import linear_model as lm
 
-def _get_model_info(model, Z, y):
-    """
-    Helper function to get fitted coefficients, R2, and log-likelihood
-    """
-    n, p = Z.shape
-    coef = model.coef_
+import subprocess
 
-    r2 = model.score(Z, y)
-    ystar = model.predict(Z)
-    s2e = sum((y - ystar) ** 2) / (n - 1)
+def external_module(args, Z, y, h2g, b_qtls=None):
+    Z_out = f"{args.output}.eqtl.genotype.txt.gz" # Z_out = "eqtl.genotype.txt.gz", example: twas_sim_loci1.eqtl.genotype.txt.gz
+    np.savetxt(Z_out,Z,fmt='%.5f')
+    y_out = f"{args.output}.eqtl.gexpr.txt.gz" # y_out = "eqtl.gexpr.txt.gz"
+    np.savetxt(y_out,y,fmt='%.5f')
 
-    logl = sum(stats.norm.logpdf(y, loc=ystar, scale=np.sqrt(s2e)))
+    subprocess.call("Rscript external.R str(args.IDX)", shell=True)
 
-    return coef, r2, logl
-
-def external_module(Z, y, h2g, b_qtls=None):
-    n, p = Z.shape
-
-    model = lm.LinearRegression()
-    model.fit(Z, y)
-
-    coef, r2, logl = _get_model_info(model, Z, y)
-    return coef, r2, logl
+    with open(f"{args.output}.external_coef.txt") as coef: # with open(path, "external_coef.txt") as coef:
+        coef = coef.readlines()
+    return coef, None, None

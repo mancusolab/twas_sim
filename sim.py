@@ -154,20 +154,6 @@ def fit_ridge(Z, y, h2g, b_qtls, args=None):
 
     return coef, r2, logl
 
-
-def fit_trueqtl(Z, y, h2g, b_qtls, args=None):
-    """
-    Return true latent eQTL effects for the causal gene.
-
-    :param Z:  numpy.ndarray n x p genotype matrix
-    :param y: numpy.ndarray gene expression for n individuals
-    :param h2g: float the -estimated- h2g from reference panel
-    :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
-    """
-
-    return b_qtls, None, None
-
-
 def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso, args=None):
     """
     Infer eqtl coefficients using L1/L2 penalized regression. Uses the PLINK-style coordinate descent algorithm
@@ -180,7 +166,6 @@ def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso, args=None):
 
     :return: (numpy.ndarray, float, float) tuple of the LASSO or ElasticNet coefficients, the r-squared score, and log-likelihood
     """
-
     if model_cls not in [lm.Lasso, lm.ElasticNet]:
         raise ValueError("penalized model must be either Lasso or ElasticNet")
 
@@ -209,25 +194,6 @@ def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso, args=None):
     coef, r2, logl = _get_model_info(model, Z, y)
 
     return coef, r2, logl
-
-def fit_external(Z, y, h2g, b_qtls, args):
-    lib_choice = "external"
-    if args.external_mod_type == "python":
-        load_mod = importlib.import_module(lib_choice)
-        coef, r2, logl = load_mod.external_module(Z, y, h2g, b_qtls=None)
-        return coef, r2, logl
-    elif args.external_mod_type == "R":
-        Z_out = f"{args.output}.eqtl.genotype.txt.gz" # Z_out = "eqtl.genotype.txt.gz", example: twas_sim_loci1.eqtl.genotype.txt.gz
-        np.savetxt(Z_out,Z,fmt='%.5f')
-        y_out = f"{args.output}.eqtl.gexpr.txt.gz" # y_out = "eqtl.gexpr.txt.gz"
-        np.savetxt(y_out,y,fmt='%.5f')
-        subprocess.call("Rscript external.R "+str(args.IDX), shell=True)
-        path = f"{args.output}"
-        with open(f"{args.output}.external_coef.txt") as coef: # with open(path, "external_coef.txt") as coef:
-            coef = coef.readlines()
-        return coef, None, None
-    else:
-        raise ValueError("Unsupported external module")
 
 def _get_model_info(model, Z, y):
     """
@@ -446,6 +412,23 @@ def sim_eqtl(L, b_qtls, args):
     # fit predictive model
     h2g = her.estimate(gexpr, "normal", A, verbose=False)
 
+    def fit_external(args, Z, y, h2g, b_qtls=None):
+        load_mod = importlib.import_module(args.linear_model)
+        coef, r2, logl = load_mod.external_module(args, Z, y, h2g, b_qtls=None)
+        return coef, r2, logl
+
+    def fit_trueqtl(Z, y, h2g, b_qtls, args=None):
+        """
+        Return true latent eQTL effects for the causal gene.
+
+        :param Z:  numpy.ndarray n x p genotype matrix
+        :param y: numpy.ndarray gene expression for n individuals
+        :param h2g: float the -estimated- h2g from reference panel
+        :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
+        """
+
+        return b_qtls, None, None
+        
     # sample eQTL reference pop genotypes from MVN approx and perform eQTL scan + fit penalized linear model
     if linear_model == "lasso":
         pred_func = fit_lasso
@@ -461,7 +444,7 @@ def sim_eqtl(L, b_qtls, args):
         raise ValueError("Invalid linear model")
 
     # fit penalized to get predictive weights
-    coef, r2, logl = pred_func(Z_qtl, gexpr, h2g, b_qtls, args)
+    coef, r2, logl = pred_func(args, Z_qtl, gexpr, h2g, b_qtls)
 
     return (gexpr, eqtl, coef, h2g, Z_qtl)
 
@@ -582,20 +565,15 @@ def main(args):
     )
     argp.add_argument(
         "--ld-model",
-        default=None,
+        default=False,
         action="store_true",
         help="Optional prefix to generate gwas beta separately.",
     )
     argp.add_argument(
         "--output-gexpr",
-        default=None,
+        default=False,
         action="store_true",
         help="If set then output eQTL gene expression",
-    )
-    argp.add_argument(
-        "--user-defined-bqtl",
-        default=None,
-        help="Optional prefix to input estimated eQTL weights. Otherwise estimate eQTL weight.",
     )
     argp.add_argument("-o", "--output", help="Output prefix")
     argp.add_argument(
@@ -653,17 +631,12 @@ def main(args):
     else:
         alpha = 0.0
 
-    if args.user_defined_bqtl is not None:
-        with open("user_defined_bqtl.txt.gz") as b_qtls:
-                 b_qtls = b_qtls.readlines()
-                 return b_qtls, None, None
-    else:
-        # simulate eQTLs and generate disease/trait effects wrt eQTL + mediation effect
-        b_qtls = sim_beta(L_pop, args.ncausal, args.eqtl_h2, rescale=True)
+    b_qtls = sim_beta(L_pop, args.ncausal, args.eqtl_h2, rescale=True)
 
     # simulate beta
-    if args.ld_model is not None:
-        beta = sim_beta(L_pop, args.ncausal, args.eqtl_h2, rescale=True) # need to edit parameters to generate beta gwas
+    if args.ld_model is not False:
+        gwas_h2 = args.h2ge
+        beta = sim_beta(L_pop, args.ncausal, gwas_h2, rescale=True)
     else:
         beta = b_qtls * alpha
 
