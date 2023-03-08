@@ -498,24 +498,6 @@ def compute_twas(gwas, coef, LD):
     return z_twas, p_twas
 
 
-def check_heritability(h2ge, beta, L):
-    """
-    Check if simulated heritability is consistent with user-specified heritability.
-
-    :param h2ge: float the amount of phenotypic variance explained by genetic component of gene expression
-    :param gwas: pandas.DataFrame containing estimated GWAS beta and standard error
-    :param L: numpy.ndarray lower cholesky factor of the p x p LD matrix for the population
-    """
-
-    # compute estimated heritability
-    # h2ge_tmp == beta @ L @ L.t @ beta.t
-    L_beta = np.dot(L.T, beta)
-    h2ge_tmp = np.dot(L_beta.T, L_beta)
-    print("h2ge:", h2ge, "h2ge_tmp:", h2ge_tmp)
-
-    return h2ge, h2ge_tmp
-
-
 def main(args):
     argp = ap.ArgumentParser(
         description="Simulate TWAS using real genotype data",
@@ -595,10 +577,10 @@ def main(args):
         help="Generate GWAS effect-sizes independently from eQTLs.",
     )
     argp.add_argument(
-        "--output-gexpr",
-        default=False,
-        action="store_true",
-        help="If set then output eQTL gene expression,",
+        "--h2g-gwas",
+        default=0.01,
+        type=float,
+        help="The SNP heritability of downstream phenotype. Only used when `--indep-gwas` is set.",
     )
     argp.add_argument("-o", "--output", help="Output prefix")
     argp.add_argument(
@@ -649,20 +631,22 @@ def main(args):
     pop_p = len(ldscs)
 
     if args.h2ge > 0 and not args.indep_gwas:
-        # we dont need to sample since alpha is determined by h2 and h2ge
+        # we don't need to sample since alpha is determined by h2 and h2ge
         # and we've already normalized b_qtls to be on h2g scale [rescale=True above]
         sign = np.random.choice([-1, 1])
         alpha = np.sqrt(args.h2ge / args.eqtl_h2) * sign
     else:
         alpha = 0.0
 
+    # simulate eQTL effects
     b_qtls = sim_beta(L_pop, args.ncausal, args.eqtl_h2, rescale=True)
 
-    # simulate beta
+    # simulate downstream trait/pheno effects
     if args.indep_gwas:
-        gwas_h2 = args.h2ge
-        beta = sim_beta(L_pop, args.ncausal, gwas_h2, rescale=True)
+        # downstream trait/pheno effects are independent from eQTL
+        beta = sim_beta(L_pop, args.ncausal, args.h2g_gwas, rescale=True)
     else:
+        # downstream trait/pheno effects are mediated by eQTL
         beta = b_qtls * alpha
 
     # determine LD to use for eQTL ref panel
@@ -676,11 +660,6 @@ def main(args):
 
     # fit prediction model on simulated eQTL ref panel and grab eQTL coefficients
     gexpr, eqtl, coef, eqtl_h2g_hat, Z_qtl = sim_eqtl(L_eqtl, b_qtls, args)
-
-    # output eQTL gene expression
-    if args.output_gexpr is not None:
-        gexpr_out = f"{args.output}.eqtl.gexpr.txt.gz"
-        np.savetxt(gexpr_out, gexpr, fmt="%.5f")
 
     # determine LD to use for TWAS test
     if args.test_prefix is not None:
@@ -717,9 +696,6 @@ def main(args):
 
     # compute TWAS statistics
     z_twas, p_twas = compute_twas(gwas, coef, LD_test)
-
-    # compute estimated heritability
-    h2ge, h2ge_tmp = check_heritability(args.h2ge, beta, L_pop)
 
     # compute real time and cpu time
     real_time_end = time.time()
@@ -763,12 +739,12 @@ def main(args):
             "twas.z": [z_twas],
             "twas.p": [p_twas],
             "alpha": [alpha],
-            "h2ge_tmp": [h2ge_tmp],
         }
     )
 
     scan_out = f"{args.output}.scan.tsv"
     summary_out = f"{args.output}.summary.tsv"
+
     if args.compress:
         scan_out += ".gz"
         summary_out += ".gz"
