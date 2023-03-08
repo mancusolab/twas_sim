@@ -1,19 +1,7 @@
-#! /usr/bin/env python
-import time
-import argparse as ap
-import re
-import sys
-
-import limix.her as her
 import numpy as np
-import pandas as pd
-import scipy.linalg as linalg
-
-from numpy.linalg import multi_dot as mdot
-from pandas_plink import read_plink
 from scipy import stats
-from scipy.stats import invgamma
 from sklearn import linear_model as lm
+
 
 def _get_model_info(model, Z, y):
     """
@@ -30,11 +18,13 @@ def _get_model_info(model, Z, y):
 
     return coef, r2, logl
 
-def external_module(args, Z, y, h2g, b_qtls=None):
+
+def fit(Z, y, h2g, b_qtls=None, args=None):
     n, p = Z.shape
 
     model = lm.LinearRegression()
     model.fit(Z, y)
 
     coef, r2, logl = _get_model_info(model, Z, y)
+
     return coef, r2, logl

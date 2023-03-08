@@ -1,22 +1,20 @@
 #! /usr/bin/env python
-import time
 import argparse as ap
+import importlib
 import re
 import sys
+import time
 
 import limix.her as her
 import numpy as np
 import pandas as pd
 import scipy.linalg as linalg
-
 from numpy.linalg import multi_dot as mdot
 from pandas_plink import read_plink
 from scipy import stats
 from scipy.stats import invgamma
 from sklearn import linear_model as lm
 
-import importlib.util
-import subprocess
 
 class NumCausalSNPs:
     """Helper class to keep track of the number of causal variants from the command line.
@@ -154,6 +152,7 @@ def fit_ridge(Z, y, h2g, b_qtls, args=None):
 
     return coef, r2, logl
 
+
 def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso, args=None):
     """
     Infer eqtl coefficients using L1/L2 penalized regression. Uses the PLINK-style coordinate descent algorithm
@@ -194,6 +193,40 @@ def _fit_sparse_penalized_model(Z, y, h2g, model_cls=lm.Lasso, args=None):
     coef, r2, logl = _get_model_info(model, Z, y)
 
     return coef, r2, logl
+
+
+def fit_external(Z, y, h2g, b_qtls=None, args=None):
+    try:
+        load_mod = importlib.import_module(args.external_module)
+        coef, r2, logl = load_mod.fit(Z, y, h2g, b_qtls, args)
+    except ModuleNotFoundError as ex:
+        raise ModuleNotFoundError(
+            f"ERROR! Cannot find external module {args.external_module}!"
+        ) from ex
+    except AttributeError as ex:
+        raise AttributeError(
+            f"ERROR! Cannot find 'fit' function in module {args.external_module}!"
+        ) from ex
+    except TypeError as ex:
+        raise TypeError(
+            f"ERROR! Argument signature for 'fit' in module {args.external_module} should be 'fit(Z, y, h2g, b_qtls, args)'!"
+        ) from ex
+
+    return coef, r2, logl
+
+
+def fit_trueqtl(Z, y, h2g, b_qtls, args=None):
+    """
+    Return true latent eQTL effects for the causal gene.
+
+    :param Z:  numpy.ndarray n x p genotype matrix
+    :param y: numpy.ndarray gene expression for n individuals
+    :param h2g: float the -estimated- h2g from reference panel
+    :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
+    """
+
+    return b_qtls, None, None
+
 
 def _get_model_info(model, Z, y):
     """
@@ -243,6 +276,7 @@ def sim_beta(L, ncausal, eqtl_h2, rescale=True):
         b_qtls *= np.sqrt(eqtl_h2 / s2g)
 
     return b_qtls
+
 
 def sim_trait(g, h2g):
     """
@@ -380,6 +414,7 @@ def sim_gwas(L, ngwas, beta, h2ge):
 
     return gwas
 
+
 def sim_eqtl(L, b_qtls, args):
     """
     Simulate an eQLT study using `nqtl` individuals.
@@ -412,23 +447,6 @@ def sim_eqtl(L, b_qtls, args):
     # fit predictive model
     h2g = her.estimate(gexpr, "normal", A, verbose=False)
 
-    def fit_external(args, Z, y, h2g, b_qtls=None):
-        load_mod = importlib.import_module(args.linear_model)
-        coef, r2, logl = load_mod.external_module(args, Z, y, h2g, b_qtls=None)
-        return coef, r2, logl
-
-    def fit_trueqtl(Z, y, h2g, b_qtls, args=None):
-        """
-        Return true latent eQTL effects for the causal gene.
-
-        :param Z:  numpy.ndarray n x p genotype matrix
-        :param y: numpy.ndarray gene expression for n individuals
-        :param h2g: float the -estimated- h2g from reference panel
-        :param b_qtls: numpy.ndarray latent eQTL effects for the causal gene
-        """
-
-        return b_qtls, None, None
-        
     # sample eQTL reference pop genotypes from MVN approx and perform eQTL scan + fit penalized linear model
     if linear_model == "lasso":
         pred_func = fit_lasso
@@ -444,9 +462,9 @@ def sim_eqtl(L, b_qtls, args):
         raise ValueError("Invalid linear model")
 
     # fit penalized to get predictive weights
-    coef, r2, logl = pred_func(args, Z_qtl, gexpr, h2g, b_qtls)
+    coef, r2, logl = pred_func(Z_qtl, gexpr, h2g, b_qtls, args)
 
-    return (gexpr, eqtl, coef, h2g, Z_qtl)
+    return gexpr, eqtl, coef, h2g, Z_qtl
 
 
 def compute_twas(gwas, coef, LD):
@@ -476,6 +494,7 @@ def compute_twas(gwas, coef, LD):
 
     return z_twas, p_twas
 
+
 def check_heritability(h2ge, beta, L):
     """
     Check if simulated heritability is consistant with user-specified heritability.
@@ -492,6 +511,7 @@ def check_heritability(h2ge, beta, L):
     print("h2ge:", h2ge, "h2ge_tmp:", h2ge_tmp)
 
     return h2ge, h2ge_tmp
+
 
 def main(args):
     argp = ap.ArgumentParser(
@@ -523,9 +543,7 @@ def main(args):
     argp.add_argument(
         "--nqtl", default=500, type=int, help="Sample size for eQTL panel"
     )
-    argp.add_argument(
-        "--IDX", type=int, help="Simulation index"
-    )
+    argp.add_argument("--IDX", type=int, help="Simulation index")
     argp.add_argument(
         "--ncausal",
         default="1",
@@ -543,37 +561,41 @@ def main(args):
         "--linear-model",
         choices=["lasso", "enet", "ridge", "trueqtl", "external"],
         default="lasso",
-        help="Linear model to predict gene expression from genotype.",
+        help=(
+            "Linear model to predict gene expression from genotype. "
+            "Use external to indicate an external module should be loaded."
+        ),
     )
     argp.add_argument(
-        "--external-mod-type",
-        choices=["python", "R"],
-        default="R",
-        help="Optional prefix for external model type",
+        "--external-module",
+        help=(
+            "Path to external Python file with custom `fit` function. Only used if `--linear-module=external`. "
+            "E.g., if `my_module.py` contains `fit function then pass in `my_module`."
+        ),
     )
     argp.add_argument(
         "--eqtl-h2",
         default=0.1,
         type=float,
-        help="The narrow-sense heritability of gene expression",
+        help="The SNP heritability of gene expression.",
     )
     argp.add_argument(
         "--h2ge",
         default=0.01,
         type=float,
-        help="Phenotypic variance explained by genetic component of gene expression",
+        help="Phenotypic variance explained by genetic component of gene expression,",
     )
     argp.add_argument(
-        "--ld-model",
+        "--indep-gwas",
         default=False,
         action="store_true",
-        help="Optional prefix to generate gwas beta separately.",
+        help="Generate GWAS effect-sizes independently from eQTLs.",
     )
     argp.add_argument(
         "--output-gexpr",
         default=False,
         action="store_true",
-        help="If set then output eQTL gene expression",
+        help="If set then output eQTL gene expression,",
     )
     argp.add_argument("-o", "--output", help="Output prefix")
     argp.add_argument(
@@ -611,7 +633,7 @@ def main(args):
 
         # compute LD-scores for reports
         # weird dask issues require us to call compute here
-        ldscs = np.sum(LD ** 2, axis=0).compute()
+        ldscs = np.sum(LD**2, axis=0).compute()
 
         return (L, mafs, ldscs, bim)
 
@@ -634,7 +656,7 @@ def main(args):
     b_qtls = sim_beta(L_pop, args.ncausal, args.eqtl_h2, rescale=True)
 
     # simulate beta
-    if args.ld_model is not False:
+    if args.indep_gwas:
         gwas_h2 = args.h2ge
         beta = sim_beta(L_pop, args.ncausal, gwas_h2, rescale=True)
     else:
@@ -650,14 +672,12 @@ def main(args):
         L_eqtl = L_pop
 
     # fit prediction model on simulated eQTL ref panel and grab eQTL coefficients
-    gexpr, eqtl, coef, eqtl_h2g_hat,Z_qtl = sim_eqtl(
-        L_eqtl, b_qtls, args
-    )
+    gexpr, eqtl, coef, eqtl_h2g_hat, Z_qtl = sim_eqtl(L_eqtl, b_qtls, args)
 
     # output eQTL gene expression
     if args.output_gexpr is not None:
         gexpr_out = f"{args.output}.eqtl.gexpr.txt.gz"
-        np.savetxt(gexpr_out,gexpr,fmt='%.5f')
+        np.savetxt(gexpr_out, gexpr, fmt="%.5f")
 
     # determine LD to use for TWAS test
     if args.test_prefix is not None:
@@ -740,7 +760,7 @@ def main(args):
             "twas.z": [z_twas],
             "twas.p": [p_twas],
             "alpha": [alpha],
-            "h2ge_tmp":[h2ge_tmp]
+            "h2ge_tmp": [h2ge_tmp],
         }
     )
 
@@ -758,4 +778,3 @@ def main(args):
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
-                      
