@@ -497,7 +497,7 @@ def compute_twas(gwas, coef, LD):
 
 def check_heritability(h2ge, beta, L):
     """
-    Check if simulated heritability is consistant with user-specified heritability.
+    Check if simulated heritability is consistent with user-specified heritability.
 
     :param h2ge: float the amount of phenotypic variance explained by genetic component of gene expression
     :param gwas: pandas.DataFrame containing estimated GWAS beta and standard error

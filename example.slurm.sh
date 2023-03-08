@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --ntasks=1
-#SBATCH --time=5:00:00
-#SBATCH --mem=8Gb
+#SBATCH --time=8:00:00
+#SBATCH --mem=12Gb
 #SBATCH --array=1-1
 
 if [ ! $SLURM_ARRAY_TASK_ID ]; then
@@ -17,7 +17,7 @@ conda activate twas_sim
 # 40 jobs in total (using slurm.params file)
 # ten jobs at a time
 start=`python -c "print( 1 + 10 * int(int($NR-1)))"`
-stop=$((start + 9))
+stop=$((start + 1))
 
 hapmap=HAPMAP_SNPS/
 loci=ind_loci.bed
@@ -26,6 +26,7 @@ genes=glist-hg19.nodupe.autosome
 # PARAMETERS
 # !!! change to point to results/output directory !!!
 odir=/scratch1/xwang505/TWAS/output
+fdir=/scratch1/xwang505/TWAS/twas_sim
 
 # !!! change to point to plink installation !!!
 plink=/project/nmancuso_8/xwang505/tools/plink2
@@ -118,14 +119,13 @@ do
       --ncausal $MODEL \
       --eqtl-h2 $H2G \
       --fast-gwas-sim \
-      --output-gexpr \
-      --ld-model \
       --IDX ${IDX}\
       --h2ge $H2GE \
+      --indep-gwas \
       --linear-model $LINEAR_MODEL \
+      --external-module external_r \
       --seed ${IDX} \
       --output $odir/twas_sim_loci${IDX}
 done
-
 # remove temporary genotype data
 rm ${odir}/twas_sim_loci${IDX}.{bed,bim,fam}
