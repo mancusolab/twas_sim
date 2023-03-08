@@ -209,7 +209,10 @@ def fit_external(Z, y, h2g, b_qtls=None, args=None):
         ) from ex
     except TypeError as ex:
         raise TypeError(
-            f"ERROR! Argument signature for 'fit' in module {args.external_module} should be 'fit(Z, y, h2g, b_qtls, args)'!"
+            (
+                f"ERROR! Argument signature for 'fit' in module {args.external_module} ",
+                "should be 'fit(Z, y, h2g, b_qtls, args)'!",
+            )
         ) from ex
 
     return coef, r2, logl
