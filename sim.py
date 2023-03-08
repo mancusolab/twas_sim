@@ -645,7 +645,7 @@ def main(args):
     L_pop, mafs, ldscs, bim = get_ld(args.prefix)
     pop_p = len(ldscs)
 
-    if args.h2ge > 0 and not args.ld_model:
+    if args.h2ge > 0 and not args.indep_gwas:
         # we dont need to sample since alpha is determined by h2 and h2ge
         # and we've already normalized b_qtls to be on h2g scale [rescale=True above]
         sign = np.random.choice([-1, 1])
