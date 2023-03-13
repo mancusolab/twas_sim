@@ -276,7 +276,10 @@ def sim_beta(L, ncausal, eqtl_h2, rescale=True):
     # rescales effects such that s2g = h2g
     if rescale:
         s2g = compute_s2g(L, b_qtls)
-        b_qtls *= np.sqrt(eqtl_h2 / s2g)
+        if eqtl_h2 != 0:
+            b_qtls *= np.sqrt(eqtl_h2 / s2g)
+        else: 
+            b_qtls = 0
 
     return b_qtls
 
