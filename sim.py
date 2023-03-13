@@ -261,25 +261,24 @@ def sim_beta(L, ncausal, eqtl_h2, rescale=True):
     """
 
     n_snps = L.shape[0]
-    # choose how many eQTLs
-    n_qtls = ncausal.get(n_snps)
+    
+    if eqtl_h2 != 0:
+        # choose how many eQTLs
+        n_qtls = ncausal.get(n_snps)
 
-    # select which SNPs are causal
-    c_qtls = np.random.choice(range(int(n_snps)), n_qtls)
-    b_qtls = np.zeros(int(n_snps))
+        # select which SNPs are causal
+        c_qtls = np.random.choice(range(int(n_snps)), n_qtls)
+        b_qtls = np.zeros(int(n_snps))
 
-    # sample effects from normal prior
-    b_qtls[c_qtls] = np.random.normal(
-        loc=0, scale=np.sqrt(eqtl_h2 / n_qtls), size=n_qtls
-    )
-
-    # rescales effects such that s2g = h2g
-    if rescale:
-        s2g = compute_s2g(L, b_qtls)
-        if eqtl_h2 != 0:
+        # sample effects from normal prior
+        b_qtls[c_qtls] = np.random.normal(
+            loc=0, scale=np.sqrt(eqtl_h2 / n_qtls), size=n_qtls
+        )
+        if rescale:
+            s2g = compute_s2g(L, b_qtls)
             b_qtls *= np.sqrt(eqtl_h2 / s2g)
-        else: 
-            b_qtls = 0
+    else:
+        b_qtls = np.zeros(int(n_snps))
 
     return b_qtls
 
