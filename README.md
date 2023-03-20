@@ -28,39 +28,6 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 
     Simulate TWAS using real genotype data
 
-    positional arguments:
-      prefix                Prefix to PLINK-formatted data for GWAS LD information
-
-      optional arguments:
-        -h, --help            show this help message and exit
-        --eqtl-prefix EQTL_PREFIX
-                              Optional prefix to PLINK-formatted data for eQTL LD information. Otherwise use GWAS LD. (default: None)
-        --test-prefix TEST_PREFIX
-                              Optional prefix to PLINK-formatted data for LD information in TWAS test statistic. Otherwise use GWAS LD.
-                              (default: None)
-        --fast-gwas-sim       If set then simulate GWAS summary data directly from LD (default: False)
-        --ngwas NGWAS         Sample size for GWAS panel (default: 100000)
-        --nqtl NQTL           Sample size for eQTL panel (default: 500)
-        --IDX IDX             Simulation index (default: None)
-        --ncausal NCAUSAL     Number of causal SNPs for gene expression/trait. Can represent explicit number (e.g., 1, 10), a percentage using
-                              the 'pct' modifier (e.g., '1pct', '10pct'), or an average under a truncated Poisson model (e.g., '1avg',
-                              '10avg'). (default: 1)
-        --ld-ridge LD_RIDGE   Offset to add to LD Diagonal (default: 0.1)
-        --linear-model {lasso,enet,ridge,trueqtl,external}
-                              Linear model to predict gene expression from genotype. Use external to indicate an external module should be
-                              loaded. (default: lasso)
-        --external-module EXTERNAL_MODULE
-                              Path to external Python file with custom `fit` function. Only used if `--linear-module=external`. E.g., if
-                              `my_module.py` contains `fit function then pass in `my_module`. (default: None)
-        --eqtl-h2 EQTL_H2     The SNP heritability of gene expression. (default: 0.1)
-        --h2ge H2GE           Phenotypic variance explained by genetic component of gene expression, (default: 0.01)
-        --indep-gwas          Generate GWAS effect-sizes independently from eQTLs. (default: False)
-        --output-gexpr        If set then output eQTL gene expression, (default: False)
-        -o OUTPUT, --output OUTPUT
-                              Output prefix (default: None)
-        -c, --compress        Compress output (gzip) (default: False)
-        --seed SEED           Seed for random number generation (default: None)
-
       optional arguments:
         -h, --help            show this help message and exit
         --eqtl-prefix EQTL_PREFIX
