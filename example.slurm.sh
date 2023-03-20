@@ -2,7 +2,7 @@
 #SBATCH --ntasks=1
 #SBATCH --time=8:00:00
 #SBATCH --mem=12Gb
-#SBATCH --array=1-1
+#SBATCH --array=1-576
 
 if [ ! $SLURM_ARRAY_TASK_ID ]; then
   NR=$1
@@ -16,8 +16,8 @@ conda activate twas_sim
 # !!! change this to use SGE or the number of ind tasks per scheduler !!!
 # 40 jobs in total (using slurm.params file)
 # ten jobs at a time
-start=`python -c "print( 1 + 10 * int(int($NR-1)))"`
-stop=$((start + 1))
+start=`python -c "print( 1 + 100 * int(int($NR-1)))"`
+stop=$((start + 99))
 
 hapmap=HAPMAP_SNPS/
 loci=ind_loci.bed
@@ -26,7 +26,6 @@ genes=glist-hg19.nodupe.autosome
 # PARAMETERS
 # !!! change to point to results/output directory !!!
 odir=/scratch1/xwang505/TWAS/output
-fdir=/scratch1/xwang505/TWAS/twas_sim
 
 # !!! change to point to plink installation !!!
 plink=/project/nmancuso_8/xwang505/tools/plink2
@@ -41,8 +40,8 @@ MIN_SNPS=450
 # PARAMETERS
 for IDX in `seq $start $stop`
 do
-  params=`sed "$((IDX+1))q;d" param_twas_sim.tsv` #change back to slurm.params
-  echo "$((IDX+1)) ${params}"
+  params=`sed "$((IDX))q;d" slurm.params` #change back to slurm.params
+  echo "$((IDX)) ${params}"
   set -- junk $params
   shift
 
@@ -121,11 +120,11 @@ do
       --fast-gwas-sim \
       --IDX ${IDX}\
       --h2ge $H2GE \
-      --indep-gwas \
       --linear-model $LINEAR_MODEL \
-      --external-module external_r \
       --seed ${IDX} \
-      --output $odir/twas_sim_loci${IDX}
+      --output $odir/twas_sim_loci${IDX}.fast
+
 done
+
 # remove temporary genotype data
 rm ${odir}/twas_sim_loci${IDX}.{bed,bim,fam}

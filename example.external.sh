@@ -29,7 +29,7 @@ NGE=500 # N EQTL
 MODEL=1 # eQTL model; see sim.py for details
 H2G=0.1 # eQTL h2g
 H2GE=0.001 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
-LINEAR_MODEL=enet
+LINEAR_MODEL=external
 
 # get genotype
 while [[ ! -e $odir/twas_sim_loci${IDX}.bim ]]
@@ -98,6 +98,7 @@ python sim.py \
     --IDX ${IDX}\
     --h2ge $H2GE \
     --linear-model $LINEAR_MODEL \
+    --external-module external_r \
     --seed ${IDX} \
     --output $odir/twas_sim_loci${IDX}
 
