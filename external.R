@@ -1,0 +1,26 @@
+# Example R script to read in txt-based genotype data, along with
+# gene expression data. Here, we fit SuSiE using the `susieR` package,
+# pull coefficients at genotype (ignoring constant term)
+# and write out results so that Python can read them in/load them.
+
+library(susieR)
+library(readr)
+
+# paths to genotype, phenotype, and output
+args <- commandArgs(trailingOnly=TRUE)
+z_path <- args[1]
+y_path <- args[2]
+out_path <- args[3]
+
+# load data as matrices
+Z <- as.matrix(read.table(z_path, header = FALSE, dec = "."))
+y <- as.matrix(read.table(y_path, header = FALSE, dec = "."))
+
+# run SuSiE
+res <- susie(Z, y, L=5)
+
+# pull coefficients at genotypes
+g_coef <- data.frame(COEF=coef(res)[2:length(coef(res))])
+
+# write out the result, ignoring column name
+write_tsv(g_coef, out_path, col_names=FALSE)

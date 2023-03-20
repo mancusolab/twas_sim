@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --ntasks=1
-#SBATCH --time=5:00:00
-#SBATCH --mem=8Gb
-#SBATCH --array=1-4
+#SBATCH --time=8:00:00
+#SBATCH --mem=12Gb
+#SBATCH --array=1-576
 
 if [ ! $SLURM_ARRAY_TASK_ID ]; then
   NR=$1
@@ -16,8 +16,8 @@ conda activate twas_sim
 # !!! change this to use SGE or the number of ind tasks per scheduler !!!
 # 40 jobs in total (using slurm.params file)
 # ten jobs at a time
-start=`python -c "print( 1 + 10 * int(int($NR-1)))"`
-stop=$((start + 9))
+start=`python -c "print( 1 + 100 * int(int($NR-1)))"`
+stop=$((start + 99))
 
 hapmap=HAPMAP_SNPS/
 loci=ind_loci.bed
@@ -25,7 +25,7 @@ genes=glist-hg19.nodupe.autosome
 
 # PARAMETERS
 # !!! change to point to results/output directory !!!
-odir=/scratch1/xwang505/TWAS/
+odir=/scratch1/xwang505/TWAS/output
 
 # !!! change to point to plink installation !!!
 plink=/project/nmancuso_8/xwang505/tools/plink2
@@ -40,8 +40,8 @@ MIN_SNPS=450
 # PARAMETERS
 for IDX in `seq $start $stop`
 do
-  params=`sed "$((IDX+1))q;d" slurm.params`
-  echo "$((IDX+1)) ${params}"
+  params=`sed "$((IDX))q;d" slurm.params` #change back to slurm.params
+  echo "$((IDX)) ${params}"
   set -- junk $params
   shift
 
@@ -51,7 +51,7 @@ do
   NGE=$3 # N EQTL
   MODEL=$4 # eQTL model; see sim.py for details
   H2G=$5 # eQTL h2g
-  H2GE=$6 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
+  H2GE=$6 # h2ge in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
   LINEAR_MODEL=$7
 
   # get genotype
@@ -94,21 +94,36 @@ do
       rm $odir/twas_sim_loci${IDX}.{bim,bed,fam}
     fi
 
+    $plink \
+    --bfile $odir/twas_sim_loci${IDX} \
+    --keep EUR1.samples \
+    --make-bed \
+    --out $odir/twas_sim_sample1_loci${IDX}
+
+    $plink \
+    --bfile $odir/twas_sim_loci${IDX} \
+    --keep EUR2.samples \
+    --make-bed \
+    --out $odir/twas_sim_sample2_loci${IDX}
   done
 
   # run simulation
   echo "running fast simulation"
   python sim.py \
-      ${odir}/twas_sim_loci${IDX} \
+      $odir/twas_sim_sample1_loci${IDX} \
+      --eqtl-prefix $odir/twas_sim_sample2_loci${IDX} \
+      --test-prefix $odir/twas_sim_sample2_loci${IDX} \
       --ngwas $N \
       --nqtl $NGE \
       --ncausal $MODEL \
       --eqtl-h2 $H2G \
       --fast-gwas-sim \
-      --var-explained $H2GE \
+      --IDX ${IDX}\
+      --h2ge $H2GE \
       --linear-model $LINEAR_MODEL \
       --seed ${IDX} \
-      --output ${odir}/twas_sim${SIM}_loci${IDX}
+      --output $odir/twas_sim_loci${IDX}.fast
+
 done
 
 # remove temporary genotype data
