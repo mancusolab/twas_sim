@@ -83,10 +83,6 @@ Key features:
 * [GWAS](#GWAS)
 * [TWAS](#TWAS)
 * [Linear Model](#Linear-Model)
-* [Elastic Net](#Elastic-Net)
-* [LASSO](#LASSO)
-* [GBLUP](#GBLUP)
-* [True eQTL](#True-eQTL)
 * [External model](#External-model)
 * [Horizontal Pleiotropy](#Horizontal-Pleiotropy)
 
@@ -103,13 +99,13 @@ blah
 blah
 ### Linear Model
 blah
-### Elastic Net
+* Elastic Net
 blah
-### LASSO
+* LASSO
 blah
-### GBLUP
+* GBLUP
 blah
-### True eQTL
+* True eQTL
 blah
 ### External Model
 blah
