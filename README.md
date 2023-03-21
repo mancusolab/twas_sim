@@ -93,10 +93,10 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 **twas_sim** compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes
 
 ### Linear Model
-**twas_sim** supports predicting gene expression using Elastic Net, Lasso, GBLUP models, true eQTL effect sizes, and external modules.  Use ```--linear-model external``` to indicate an external module should be loaded (please see External Module below)
+**twas_sim** supports predicting gene expression using true eQTL effect sizes, Elastic Net, Lasso, GBLUP, and external models.  Use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below)
 
 ### External Module
-Use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`.
+Use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) for external python model script (fitting OLS model) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) for external R model (fitting SuSiE). 
 
 ### Horizontal Pleiotropy
 We defined horizontal pleiotropy through linkage as the situation when nearby tagging genes are also tested in TWAS. Use ```--indep-gwas``` to generate GWAS effect-sizes independently from eQTLs. Otherwise, **twas_sim** generates GWAS effect-size using causal TWAS model (no optional prefix needed).
