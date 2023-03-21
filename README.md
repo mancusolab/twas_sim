@@ -16,7 +16,7 @@ then,
     conda activate twas_sim
 
 ## Overview
-The script `example.sh` will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command
+The script `example.sh` will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command:
 
 ```conda deactivate```
 
@@ -94,19 +94,16 @@ blah
 ### Dataset
 blah
 ### GWAS
+* **Fast GWAS** Raise the flag ```fast-gwas-sim```
 blah
 ### TWAS
 blah
 ### Linear Model
-blah
-* **Elastic Net** blahblah
-* **LASSO** blah
-* **GBLUP** blah
-* **True eQTL** blah
+Elastic Net, LASSO, GBLUP, true eQTL
 ### External Model
-blah
+```--linear-model``` to do blah and ```--external-module``` for blah
 ### Horizontal Pleiotropy
-blah
+```--indep-gwas```
 
 ## Output
 The output will be a two tab-delimited reports.
