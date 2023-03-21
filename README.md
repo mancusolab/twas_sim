@@ -77,14 +77,7 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 
 ## Example
 ### Key features:
-* [Allele](#Allele)
-* [LD](#LD)
-* [Dataset](#Dataset)
-* [GWAS](#GWAS)
-* [TWAS](#TWAS)
-* [Linear Model](#Linear-Model)
-* [External Linear Model](*External-Linear-Model)
-* [Horizontal Pleiotropy](#Horizontal-Pleiotropy)
+[Allele](#Allele) | [LD](#LD) | [Dataset](#Dataset) | [GWAS](#GWAS) | [TWAS](#TWAS) | [Linear Model](#Linear-Model) | [External Linear Model](#External-Linear-Model) | [Horizontal Pleiotropy](#Horizontal-Pleiotropy)
 
 ### Description:
 #### Allele
