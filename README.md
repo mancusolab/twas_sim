@@ -1,17 +1,10 @@
 #twas_sim
 Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait.
 
-[Installation](#Installation) [Overview](#Overview)
+[Installation](#Installation) [Overview](#Overview) [Usage](#Usage) [Example](#Example) [Output](#Output) [Notes](#Notes) [Support](#Support) [Other Software](#Other Software)
 
-|Installation|_ | |Overview|_ | |Usage & Example|_ | |Output|_ | |Notes|_ |Support|_ | |Other Software|_
-=================
-
-.. _Installation:
-.. |Installation| replace:: **Installation**
 
 #Installation
-============
-
 To download the TWAS simulator first type the commands
 
     git clone https://github.com/mancusolab/twas_sim.git
@@ -22,11 +15,10 @@ then,
     conda env create --file environment.yml
     conda activate twas_sim
 
-The script `example.sh` will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command
-
-    conda deactivate
-
 #Overview
+The script `example.sh` will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command `conda deactivate`.
+
+#Usage
 `sim.py` is the actual simulator. Its usage is below:
 
     usage: sim.py [-h] [--eqtl-prefix EQTL_PREFIX] [--test-prefix TEST_PREFIX]
@@ -81,6 +73,10 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
         -c, --compress        Compress output (gzip) (default: False)
         --seed SEED           Seed for random number generation (default: None)
 
+#Example
+*add example*
+
+#Output
 The output will be a two tab-delimited reports.
 
 The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns:
@@ -127,3 +123,12 @@ The second `OUTPUT.scan.tsv` is individuals statistics at each SNP. It contains 
 | eqtl.se             | standard error in eQTL |
 | eqtl.model          | linear model to predict gene expression from genotype |
 | eqtl.model.beta     | coefficient estimated in selected linear model |
+
+#Notes
+Note
+
+#Support
+ABC
+
+#Other Software
+ABC
