@@ -83,25 +83,31 @@ Key features:
 * [GWAS](#GWAS)
 * [TWAS](#TWAS)
 * [Linear Model](#Linear-Model)
-* [External model](#External-model)
+  * [Elastic Net, LASSO, and GBLUP](#Elastic Net,-LASSO,-and-GBLUP)
+  * [True eQTL](#True-eQTLl)
+  * [External model](#External-model)
 * [Horizontal Pleiotropy](#Horizontal-Pleiotropy)
 
 Description:
 ### Allele
 blah
 ### LD
-blah
-### Dataset
-blah
+**twas_sim** supports the option to use different LD reference panels across GWAS and eQTL simulations in addition to TWAS testing. Use optional prefix ```--eqtl-prefix $Path-to-eQTL-LD-information``` and ```--test-prefix $Path-to-TWAS-LD-information``` to PLINK-formatted data to specify eQTL and TWAS LD. Otherwise, **twas_sim** will use GWAS LD for all simulations.
 ### GWAS
-* **Fast GWAS** Raise the flag ```fast-gwas-sim```
-blah
+* **Standard GWAS**
+Simulates GWAS summary statistics using individual-level genotype and phenotype data.
+* **Fast GWAS**
+Simulates GWAS summary statistics directly using the multivariate normal distribution parameterized by LD. Use optional prefix ```--fast-gwas-sim``` for fast GWAS simulation.
 ### TWAS
 blah
 ### Linear Model
-Elastic Net, LASSO, GBLUP, true eQTL
-### External Model
-```--linear-model``` to do blah and ```--external-module``` for blah
+Blah
+### Elastic Net, LASSO, and GBLUP
+Blah
+### True eQTL
+Blah
+### External model
+Use ```--linear-model external``` to set external predictive model and ```--external-module path-to-external-Python-file``` to specify path to external Python file.
 ### Horizontal Pleiotropy
 ```--indep-gwas```
 
