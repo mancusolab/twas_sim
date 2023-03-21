@@ -160,7 +160,11 @@ The second `OUTPUT.scan.tsv` is individuals statistics at each SNP. It contains 
 Note
 
 ## Support
-ABC
+Please report any bugs or feature requests in the Issue Tracker. If users have any questions or comments, please contact Xinran Wang (xwang505@usc.edu), Zeyun Lu (zeyunlu@usc.edu), and Nicholas Mancuso (nmancuso@usc.edu).
 
 ## Other Software
-ABC
+Feel free to use other software developed by `Mancuso Lab <https://www.mancusolab.com/>`_:
+
+* `MA-FOCUS <https://github.com/mancusolab/ma-focus>`_: a Bayesian fine-mapping framework using `TWAS <https://www.nature.com/articles/ng.3506>`_ statistics across multiple ancestries to identify the causal genes for complex traits.
+
+* `SuSiE-PCA <https://github.com/mancusolab/sushie>`_: a scalable Bayesian variable selection technique for sparse principal component analysis
