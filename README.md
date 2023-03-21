@@ -1,10 +1,5 @@
-.. These are examples of badges you might want to add to your README:
-   please update the URLs accordingly
-======
-twas_sim
-======
+#twas_sim
 Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait.
-
 
 |Installation|_ | |Overview|_ | |Usage & Example|_ | |Output|_ | |Notes|_ |Support|_ | |Other Software|_
 =================
@@ -12,7 +7,7 @@ Using real genotype data, simulate a complex trait as a function of latent expre
 .. _Installation:
 .. |Installation| replace:: **Installation**
 
-Installation
+#Installation
 ============
 
 To download the TWAS simulator first type the commands
