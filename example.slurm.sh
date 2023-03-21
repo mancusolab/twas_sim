@@ -40,7 +40,7 @@ MIN_SNPS=450
 # PARAMETERS
 for IDX in `seq $start $stop`
 do
-  params=`sed "$((IDX))q;d" slurm.params` #change back to slurm.params
+  params=`sed "$((IDX))q;d" slurm.params` 
   echo "$((IDX)) ${params}"
   set -- junk $params
   shift
