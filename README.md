@@ -77,7 +77,7 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 
 ## Example
 ### Key features:
-[Dataset](#Dataset) | [LD](#LD) | [Dataset](#Dataset) | [GWAS](#GWAS) | [TWAS](#TWAS) | [Linear Model](#Linear-Model) | [External Module](#External-Module) | [Horizontal Pleiotropy](#Horizontal-Pleiotropy)
+[Dataset](#Dataset) | [LD](#LD) | [GWAS](#GWAS) | [TWAS](#TWAS) | [Linear Model](#Linear-Model) | [External Module](#External-Module) | [Horizontal Pleiotropy](#Horizontal-Pleiotropy)
 
 ### Dataset
 **twas_sim** first sample a genomic region uniformly at random. Then, we subset 1000G reference genotype data from 489 individuals of European ancestry to the genomic region from the previous step, while filtering out genetic variants that are not bi-allelic SNPs, MAF < 1%, have HWE < 1e-5, and variant missingness > 10%. We additionally restrict to HapMap3 variants. Next, we provide this QC’d reference genotype data to **twas_sim** to perform simulations under a variety of eQTL and complex trait architectures, sample sizes, and linear prediction models.
