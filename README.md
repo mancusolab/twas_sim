@@ -83,9 +83,7 @@ Key features:
 * [GWAS](#GWAS)
 * [TWAS](#TWAS)
 * [Linear Model](#Linear-Model)
-  * [Elastic Net, LASSO, and GBLUP](*Elastic Net,-LASSO,-and-GBLUP)
-  * [True eQTL](*True-eQTLl)
-  * [External model](*External-model)
+* [External Linear Model](*External-Linear-Model)
 * [Horizontal Pleiotropy](#Horizontal-Pleiotropy)
 
 Description:
@@ -102,11 +100,11 @@ Simulates GWAS summary statistics directly using the multivariate normal distrib
 blah
 ### Linear Model
 Blah
-* ### Elastic Net, LASSO, and GBLUP
+* Elastic Net, LASSO, and GBLUP
 Blah
-* ### True eQTL
+* True eQTL
 Blah
-* ### External model
+### External Linear Model
 Use ```--linear-model external``` to set external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. E.g., if `my_module.py` contains `fit function then pass in `my_module`.
 ### Horizontal Pleiotropy
 ```--indep-gwas```
