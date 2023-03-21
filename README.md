@@ -100,12 +100,12 @@ Simulates GWAS summary statistics directly using the multivariate normal distrib
 blah
 ### Linear Model
 Blah
-* Elastic Net, LASSO, and GBLUP
+* **Elastic Net, LASSO, and GBLUP**
 Blah
-* True eQTL
+* **True eQTL**
 Blah
 ### External Linear Model
-Use ```--linear-model external``` to set external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. E.g., if `my_module.py` contains `fit function then pass in `my_module`.
+Use ```--linear-model external``` to set external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. E.g., if `my_module.py` contains `fit` function then pass in `my_module`.
 ### Horizontal Pleiotropy
 ```--indep-gwas```
 
