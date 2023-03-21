@@ -1,7 +1,7 @@
 #twas_sim
 Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait.
 
-[Installation](#Installation)
+[Installation](#Installation)_ [Overview](#Overview)
 
 |Installation|_ | |Overview|_ | |Usage & Example|_ | |Output|_ | |Notes|_ |Support|_ | |Other Software|_
 =================
@@ -26,6 +26,7 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 
     conda deactivate
 
+#Overview
 `sim.py` is the actual simulator. Its usage is below:
 
     usage: sim.py [-h] [--eqtl-prefix EQTL_PREFIX] [--test-prefix TEST_PREFIX]
