@@ -76,7 +76,45 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
         --seed SEED           Seed for random number generation (default: None)
 
 ## Example
-*add example*
+Key features:
+* [Allele]
+* [LD](LD)
+** [Dataset](Dataset)
+* [GWAS](GWAS)
+* [TWAS](TWAS)
+* [Linear Model](Linear-Model)
+** [Elastic Net](Elastic-Net)
+** [LASSO](LASSO)
+** [GBLUP](GBLUP)
+** [True eQTL](True-eQTL)
+* [External model](External-model)
+* [Horizontal Pleiotropy](Horizontal-Pleiotropy)
+
+Description:
+### Allele
+blah
+### LD
+blah
+### Dataset
+blah
+### GWAS
+blah
+### TWAS
+blah
+### Linear Model
+blah
+### Elastic Net
+blah
+### LASSO
+blah
+### GBLUP
+blah
+### True eQTL
+blah
+### External Model
+blah
+### Horizontal Pleiotropy
+blah
 
 ## Output
 The output will be a two tab-delimited reports.
