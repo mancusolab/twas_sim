@@ -5,6 +5,11 @@ Using real genotype data, simulate a complex trait as a function of latent expre
 |Installation|_ | |Example|_ | |Notes|_ | |Version|_ | |Support|_ | |Other Software|_
 
 
+=================
+
+.. _Installation:
+.. |Installation| replace:: **Installation**
+
 Installation
 ============
 
