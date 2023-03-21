@@ -1,7 +1,7 @@
-#twas_sim
+# twas_sim
 Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait.
 
-[Installation](#Installation) | [Overview](**Overview**) | [Usage](#Usage) | [Example](#Example) | [Output](#Output) | [Notes](#Notes) | [Support](#Support) | [Other Software](#Other Software)
+[Installation](#Installation) | [Overview](**Overview**) | [Usage](#Usage) | [Example](#Example) | [Output](#Output) | [Notes](#Notes) | [Support](#Support) | [Other Software](#Other-Software)
 
 
 ## Installation
