@@ -76,7 +76,7 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
         --seed SEED           Seed for random number generation (default: None)
 
 ## Example
-Key features:
+### Key features:
 * [Allele](#Allele)
 * [LD](#LD)
 * [Dataset](#Dataset)
@@ -86,27 +86,27 @@ Key features:
 * [External Linear Model](*External-Linear-Model)
 * [Horizontal Pleiotropy](#Horizontal-Pleiotropy)
 
-Description:
-### Allele
+### Description:
+#### Allele
 blah
-### LD
+#### LD
 **twas_sim** supports the option to use different LD reference panels across GWAS and eQTL simulations in addition to TWAS testing. Use optional prefix ```--eqtl-prefix $Path-to-eQTL-LD-information``` and ```--test-prefix $Path-to-TWAS-LD-information``` to PLINK-formatted  eQTL and TWAS LD. Otherwise, **twas_sim** will use GWAS LD for all simulations.
-### GWAS
+#### GWAS
 * **Standard GWAS**
 Simulates GWAS summary statistics using individual-level genotype and phenotype data.
 * **Fast GWAS**
 Simulates GWAS summary statistics directly using the multivariate normal distribution parameterized by LD. Use optional prefix ```--fast-gwas-sim``` for fast GWAS simulation.
-### TWAS
+#### TWAS
 blah
-### Linear Model
+#### Linear Model
 Blah
 * **Elastic Net, LASSO, and GBLUP**
 Blah
 * **True eQTL**
 Blah
-### External Linear Model
+#### External Linear Model
 Use ```--linear-model external``` to set external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. E.g., if `my_module.py` contains `fit` function then pass in `my_module`.
-### Horizontal Pleiotropy
+#### Horizontal Pleiotropy
 ```--indep-gwas```
 
 ## Output
