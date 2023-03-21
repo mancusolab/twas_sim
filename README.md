@@ -1,7 +1,7 @@
 #twas_sim
 Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait.
 
-[Installation](#Installation) [Overview](#Overview) [Usage](#Usage) [Example](#Example) [Output](#Output) [Notes](#Notes) [Support](#Support) [Other Software](#Other Software)
+[Installation](#Installation) | [Overview](**Overview**) | [Usage](#Usage) | [Example](#Example) | [Output](#Output) | [Notes](#Notes) | [Support](#Support) | [Other Software](#Other Software)
 
 
 #Installation
@@ -15,7 +15,7 @@ then,
     conda env create --file environment.yml
     conda activate twas_sim
 
-#Overview
+**Overview**
 The script `example.sh` will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command `conda deactivate`.
 
 #Usage
