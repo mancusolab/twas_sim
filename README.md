@@ -99,14 +99,10 @@ blah
 blah
 ### Linear Model
 blah
-* Elastic Net
-blah
-* LASSO
-blah
-* GBLUP
-blah
-* True eQTL
-blah
+* **Elastic Net** blahblah
+* **LASSO** blah
+* **GBLUP** blah
+* **True eQTL** blah
 ### External Model
 blah
 ### Horizontal Pleiotropy
