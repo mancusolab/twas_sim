@@ -1,5 +1,5 @@
 # twas_sim
-Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait.
+Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait. **The manuscript is in progress.**
 
 [Installation](#Installation) | [Overview](#Overview) | [Usage](#Usage) | [Example](#Example) | [Output](#Output) | [Notes](#Notes) | [Support](#Support) | [Other Software](#Other-Software)
 
@@ -89,14 +89,14 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 * **Standard GWAS** simulates GWAS summary statistics using individual-level genotype and phenotype data. It is the default GWAS mode in **twas_sim** (no optional prefix needed).
 * **Fast GWAS** simulates GWAS summary statistics directly using the multivariate normal distribution parameterized by LD. Use optional prefix ```--fast-gwas-sim``` for fast GWAS simulation.
 
-### TWAS
-**twas_sim** compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes
-
 ### Linear Model
 **twas_sim** supports predicting gene expression using true eQTL effect sizes, Elastic Net, Lasso, GBLUP, and external models.  Use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below)
 
 ### External Module
-Use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) for external python model script (fitting OLS model) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) for external R model (fitting SuSiE). 
+Use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) for external python model script (fitting OLS model) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) for external R model (fitting SuSiE model).
+
+### TWAS
+**twas_sim** compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes
 
 ### Horizontal Pleiotropy
 We defined horizontal pleiotropy through linkage as the situation when nearby tagging genes are also tested in TWAS. Use ```--indep-gwas``` to generate GWAS effect-sizes independently from eQTLs. Otherwise, **twas_sim** generates GWAS effect-size using causal TWAS model (no optional prefix needed).
