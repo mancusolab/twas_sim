@@ -90,7 +90,9 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 * **Fast GWAS** simulates GWAS summary statistics directly using the multivariate normal distribution parameterized by LD. Use optional prefix ```--fast-gwas-sim``` for fast GWAS simulation.
 
 ### Linear Model
-**twas_sim** supports predicting gene expression using true eQTL effect sizes, Elastic Net, Lasso, GBLUP, and external models.  Use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below)
+**twas_sim** supports predicting gene expression using Elastic Net, Lasso, GBLUP, and true eQTL effect sizes. e.g. Use ```--linear-model enet``` to use Elastic Net model.    
+
+The dynamic import feature enables twas_sim to include external prediction tools easily. Use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below)
 
 ### External Module
 Use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) for external python model script (fitting OLS model) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) for external R model (fitting SuSiE model).
