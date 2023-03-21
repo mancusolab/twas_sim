@@ -4,7 +4,7 @@ Using real genotype data, simulate a complex trait as a function of latent expre
 [Installation](#Installation) | [Overview](**Overview**) | [Usage](#Usage) | [Example](#Example) | [Output](#Output) | [Notes](#Notes) | [Support](#Support) | [Other Software](#Other Software)
 
 
-#Installation
+## Installation
 To download the TWAS simulator first type the commands
 
     git clone https://github.com/mancusolab/twas_sim.git
@@ -15,7 +15,7 @@ then,
     conda env create --file environment.yml
     conda activate twas_sim
 
-**Overview**
+## Overview
 The script `example.sh` will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command `conda deactivate`.
 
 #Usage
@@ -73,7 +73,7 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
         -c, --compress        Compress output (gzip) (default: False)
         --seed SEED           Seed for random number generation (default: None)
 
-#Example
+## Example
 *add example*
 
 #Output
@@ -124,11 +124,11 @@ The second `OUTPUT.scan.tsv` is individuals statistics at each SNP. It contains 
 | eqtl.model          | linear model to predict gene expression from genotype |
 | eqtl.model.beta     | coefficient estimated in selected linear model |
 
-#Notes
+## Notes
 Note
 
-#Support
+## Support
 ABC
 
-#Other Software
+## Other Software
 ABC
