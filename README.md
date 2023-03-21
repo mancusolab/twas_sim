@@ -1,6 +1,13 @@
 # twas_sim
 Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait.
 
+
+|Installation|_ | |Example|_ | |Notes|_ | |Version|_ | |Support|_ | |Other Software|_
+
+
+Installation
+============
+
 To download the TWAS simulator first type the commands
 
     git clone https://github.com/mancusolab/twas_sim.git
