@@ -17,9 +17,10 @@ then,
 
 ## Overview
 The script `example.sh` will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command
+
 ```conda deactivate```
 
-#Usage
+## Usage
 `sim.py` is the actual simulator. Its usage is below:
 
     usage: sim.py [-h] [--eqtl-prefix EQTL_PREFIX] [--test-prefix TEST_PREFIX]
@@ -77,7 +78,7 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 ## Example
 *add example*
 
-#Output
+## Output
 The output will be a two tab-delimited reports.
 
 The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns:
