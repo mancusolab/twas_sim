@@ -23,8 +23,8 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 ### Key features:
 [Dataset](#Dataset) | [LD](#LD) | [GWAS](#GWAS) | [TWAS](#TWAS) | [Linear Model](#Linear-Model) | [Horizontal Pleiotropy](#Horizontal-Pleiotropy)
 
-#### Dataset
-* **twas_sim** first sample a genomic region uniformly at random. Then, it subset reference genotype data to the genomic region from the previous step, while filtering out genetic variants that are not bi-allelic SNPs, MAF < 1%, have HWE < 1e-5, and variant missingness > 10%. It additionally restrict to HapMap3 variants. Next, this QC’d reference genotype data is provided to **twas_sim** to perform simulations under a variety of eQTL and complex trait architectures, sample sizes, and linear prediction models.
+#### Dataset:
+**twas_sim** first sample a genomic region uniformly at random. Then, it subset reference genotype data to the genomic region from the previous step, while filtering out genetic variants that are not bi-allelic SNPs, MAF < 1%, have HWE < 1e-5, and variant missingness > 10%. It additionally restrict to HapMap3 variants. Next, this QC’d reference genotype data is provided to **twas_sim** to perform simulations under a variety of eQTL and complex trait architectures, sample sizes, and linear prediction models.
 
 #### LD
 * **twas_sim** supports the option to use different LD reference panels across GWAS and eQTL simulations in addition to TWAS testing.
