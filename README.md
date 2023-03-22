@@ -84,11 +84,11 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
         --seed SEED           Seed for random number generation (default: None)
 
 ## Example
-* LD reference panels: use optional prefix ```--eqtl-prefix $path-to-eQTL-LD-information``` and ```--test-prefix $path-to-TWAS-LD-information``` to PLINK-formatted  eQTL and TWAS LD. Otherwise, twas_sim will use GWAS LD for all simulations.
+* LD reference panels: use optional prefix ```--eqtl-prefix $path-to-eQTL-LD-information``` and ```--test-prefix $path-to-TWAS-LD-information``` to point to PLINK-formatted eQTL and TWAS LD. Otherwise, twas_sim will use GWAS LD for all simulations.
 * GWAS: twas_sim simulates standard GWAS by default ```(no optional prefix needed)```. Use optional prefix ```--fast-gwas-sim``` to simulated GWAS in the fast mode.
 * Linear Model: use ```--linear-model enet``` to use Elastic Net model, or use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below).
 * External Module: use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to script [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) for fitting external python model (OLS) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) for fitting external R model ([SuSiE](https://github.com/stephenslab/susieR)).
-* Horizontal pleiotropy: twas_sim generates GWAS effect-size using causal TWAS model by default ```(no optional prefix needed)```. Use ```--indep-gwas``` to generate GWAS effect-sizes independently from eQTLs.
+* Horizontal pleiotropy: twas_sim generates GWAS effect-size using causal TWAS model by default ```(no optional prefix needed)```. Use ```--indep-gwas``` to generate GWAS effect-sizes under horizontal pleiotropy through linkage model.
 
 ## Output
 The output will be a two tab-delimited reports.
