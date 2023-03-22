@@ -76,7 +76,7 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
         --seed SEED           Seed for random number generation (default: None)
 
 ## Example
-#### Key features:
+### Key features:
 [Dataset](#Dataset) | [LD](#LD) | [GWAS](#GWAS) | [TWAS](#TWAS) | [Linear Model](#Linear-Model) | [External Module](#External-Module) | [Horizontal Pleiotropy](#Horizontal-Pleiotropy)
 
 #### Dataset
