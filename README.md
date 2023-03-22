@@ -96,12 +96,11 @@ The situation when nearby tagging genes are also tested in TWAS.
         --seed SEED           Seed for random number generation (default: None)
 
 ## Example
-* LD   
+* Linkage Disequilibrium  
 Use optional prefix ```--eqtl-prefix $path-to-eQTL-LD-information``` and ```--test-prefix $path-to-TWAS-LD-information``` to PLINK-formatted  eQTL and TWAS LD. Otherwise, twas_sim will use GWAS LD for all simulations.
 
 * GWAS   
-Standard GWAS** is the default GWAS mode in twas_sim ```(no optional prefix needed)```.   
-Fast GWAS**: use optional prefix ```--fast-gwas-sim``` for fast GWAS simulation.
+Standard GWAS is the default GWAS mode in twas_sim ```(no optional prefix needed)```. Use optional prefix ```--fast-gwas-sim``` to simulated GWAS in the fast mode.
 
 * Linear Model   
 Use ```--linear-model enet``` to use Elastic Net model & use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below).
@@ -110,7 +109,7 @@ Use ```--linear-model enet``` to use Elastic Net model & use ```--linear-model e
 Use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) for external python model script (fitting OLS model) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) for external R model (fitting [SuSiE](https://github.com/stephenslab/susieR) model).
 
 * Horizontal Pleiotropy:   
-Use ```--indep-gwas``` to generate GWAS effect-sizes independently from eQTLs. Otherwise, twas_sim generates GWAS effect-size using causal TWAS model ```(no optional prefix needed)```.
+twas_sim generates GWAS effect-size using causal TWAS model ```(no optional prefix needed)```. Use ```--indep-gwas``` to generate GWAS effect-sizes independently from eQTLs.
 
 ## Output
 The output will be a two tab-delimited reports.
