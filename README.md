@@ -80,7 +80,7 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 [Dataset](#Dataset) | [LD](#LD) | [GWAS](#GWAS) | [TWAS](#TWAS) | [Linear Model](#Linear-Model) | [External Module](#External-Module) | [Horizontal Pleiotropy](#Horizontal-Pleiotropy)
 
 ### Dataset
-**twas_sim** first sample a genomic region uniformly at random. Then, we subset 1000G reference genotype data from 489 individuals of European ancestry to the genomic region from the previous step, while filtering out genetic variants that are not bi-allelic SNPs, MAF < 1%, have HWE < 1e-5, and variant missingness > 10%. We additionally restrict to HapMap3 variants. Next, we provide this QC’d reference genotype data to **twas_sim** to perform simulations under a variety of eQTL and complex trait architectures, sample sizes, and linear prediction models.
+**twas_sim** first sample a genomic region uniformly at random. Then, it subset reference genotype data to the genomic region from the previous step, while filtering out genetic variants that are not bi-allelic SNPs, MAF < 1%, have HWE < 1e-5, and variant missingness > 10%. It additionally restrict to HapMap3 variants. Next, this QC’d reference genotype data is provided to **twas_sim** to perform simulations under a variety of eQTL and complex trait architectures, sample sizes, and linear prediction models.
 
 ### LD
 **twas_sim** supports the option to use different LD reference panels across GWAS and eQTL simulations in addition to TWAS testing. Use optional prefix ```--eqtl-prefix $path-to-eQTL-LD-information``` and ```--test-prefix $path-to-TWAS-LD-information``` to PLINK-formatted  eQTL and TWAS LD. Otherwise, **twas_sim** will use GWAS LD for all simulations.
@@ -92,7 +92,7 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 ### Linear Model
 **twas_sim** supports predicting gene expression using Elastic Net, Lasso, GBLUP, and true eQTL effect sizes. e.g. Use ```--linear-model enet``` to use Elastic Net model.    
 
-The dynamic import feature enables twas_sim to include external prediction tools easily. Use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below)
+The dynamic import feature enables twas_sim to include external prediction tools easily. Use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below).
 
 ### External Module
 Use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) for external python model script (fitting OLS model) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) for external R model (fitting SuSiE model).
