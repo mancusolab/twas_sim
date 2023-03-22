@@ -123,8 +123,8 @@ The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns
 | h2g.hat          | Predicted narrow-sense heritability of GE |
 | avg.ldsc         | Average LD-score at the region |
 | min.gwas.p       | Minimum GWAS SNP p-value |
-| mean.gwas.chi2   | Mean GWAS SNP chi-sq |
-| median.gwas.chi2 | Median GWAS SNP chi-sq |
+| mean.gwas.chi2   | Mean GWAS SNP Chi<sup>2</sup> |
+| median.gwas.chi2 | Median GWAS SNP Chi<sup>2</sup> |
 | twas.z           | TWAS Z score |
 | twas.p           | TWAS p-value |
 | alpha            | TWAS alpha |
