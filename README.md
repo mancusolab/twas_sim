@@ -98,7 +98,7 @@ The dynamic import feature enables twas_sim to include external prediction tools
 Use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) for external python model script (fitting OLS model) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) for external R model (fitting SuSiE model).
 
 #### TWAS
-**twas_sim** compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes
+**twas_sim** compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes.
 
 #### Horizontal Pleiotropy
 We defined horizontal pleiotropy through linkage as the situation when nearby tagging genes are also tested in TWAS. Use ```--indep-gwas``` to generate GWAS effect-sizes independently from eQTLs. Otherwise, **twas_sim** generates GWAS effect-size using causal TWAS model (no optional prefix needed).
@@ -162,4 +162,4 @@ Feel free to use other software developed by `Mancuso Lab <https://www.mancusola
 
 * `MA-FOCUS <https://github.com/mancusolab/ma-focus>`_: a Bayesian fine-mapping framework using `TWAS <https://www.nature.com/articles/ng.3506>`_ statistics across multiple ancestries to identify the causal genes for complex traits.
 
-* `SuSiE-PCA <https://github.com/mancusolab/sushie>`_: a scalable Bayesian variable selection technique for sparse principal component analysis
+* `SuSiE-PCA <https://github.com/mancusolab/sushie>`_: a scalable Bayesian variable selection technique for sparse principal component analysis.
