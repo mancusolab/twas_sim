@@ -139,7 +139,7 @@ The second `OUTPUT.scan.tsv` is individuals statistics at each SNP. It contains 
 | a0                  | non-effect allele |
 | a1                  | effect allele |
 | maf                 | minor allele frequency |
-| ld.score            | ld score (ie. sum_i r_ij^2, where r_ij is LD between snps i, j) |
+| ld.score            | ld score (ie. sum<sub>i</sub> r<sub>ij</sub><sup>2</sup>, where r<sub>ij</sub> is LD between snps i, j) |
 | ld.score.causal     | ld score for causal variants |
 | gwas.sim            | GWAS mode |
 | gwas.true           | true causal effect for complex trait |
