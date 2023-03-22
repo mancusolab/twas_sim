@@ -1,6 +1,10 @@
 # twas_sim
-Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait.
+Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait. **The manuscript is in progress.**
 
+[Installation](#Installation) | [Overview](#Overview) | [Usage](#Usage) | [Example](#Example) | [Output](#Output) | [Notes](#Notes) | [Support](#Support) | [Other Software](#Other-Software)
+
+
+## Installation
 To download the TWAS simulator first type the commands
 
     git clone https://github.com/mancusolab/twas_sim.git
@@ -11,10 +15,20 @@ then,
     conda env create --file environment.yml
     conda activate twas_sim
 
-The script `example.sh` will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command
+## Overview
+The script `example.sh` will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command:
 
-    conda deactivate
+```conda deactivate```
 
+#### Key features:
+* Dataset: twas_sim first sample a genomic region uniformly at random. Then, it subset reference genotype data to the genomic region from the previous step, while filtering out genetic variants that are not bi-allelic SNPs, MAF < 1%, have HWE < 1e-5, and variant missingness > 10%. It additionally restrict to HapMap3 variants.
+* LD reference panels: twas_sim supports the option to use different LD reference panels across GWAS and eQTL simulations in addition to TWAS testing.
+* GWAS: standard GWAS simulates GWAS summary statistics using individual-level genotype and phenotype data. Fast GWAS simulates GWAS summary statistics directly using the multivariate normal distribution parameterized by LD.
+* Linear model: twas_sim supports predicting gene expression using Elastic Net, LASSO, GBLUP, and true eQTL effect sizes. The dynamic import feature enables twas_sim to include external prediction tools easily.
+* TWAS: twas_sim compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes.
+* Horizontal pleiotropy: twas_sim account for the situation when nearby tagging genes are also tested in TWAS in addition to the causal TWAS model.
+
+## Usage
 `sim.py` is the actual simulator. Its usage is below:
 
     usage: sim.py [-h] [--eqtl-prefix EQTL_PREFIX] [--test-prefix TEST_PREFIX]
@@ -69,6 +83,14 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
         -c, --compress        Compress output (gzip) (default: False)
         --seed SEED           Seed for random number generation (default: None)
 
+## Example
+* LD reference panels: use optional prefix ```--eqtl-prefix $path-to-eQTL-LD-information``` and ```--test-prefix $path-to-TWAS-LD-information``` to point to PLINK-formatted eQTL and TWAS LD. Otherwise, twas_sim will use GWAS LD for all simulations.
+* GWAS: twas_sim simulates standard GWAS by default ```(no optional prefix needed)```. Use optional prefix ```--fast-gwas-sim``` to simulated GWAS in the fast mode.
+* Linear Model: use ```--linear-model enet``` to use Elastic Net model, or use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below).
+* External Module: use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to script [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) to fit external python model (OLS) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) to fit external R model ([SuSiE](https://github.com/stephenslab/susieR)).
+* Horizontal pleiotropy: twas_sim generates GWAS effect-size using causal TWAS model by default ```(no optional prefix needed)```. Use ```--indep-gwas``` to generate GWAS effect-sizes under horizontal pleiotropy through linkage model.
+
+## Output
 The output will be a two tab-delimited reports.
 
 The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns:
@@ -88,8 +110,8 @@ The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns
 | h2g.hat          | Predicted narrow-sense heritability of GE |
 | avg.ldsc         | Average LD-score at the region |
 | min.gwas.p       | Minimum GWAS SNP p-value |
-| mean.gwas.chi2   | Mean GWAS SNP chi-sq |
-| median.gwas.chi2 | Median GWAS SNP chi-sq |
+| mean.gwas.chi2   | Mean GWAS SNP &chi;<sup>2</sup> |
+| median.gwas.chi2 | Median GWAS SNP &chi;<sup>2</sup> |
 | twas.z           | TWAS Z score |
 | twas.p           | TWAS p-value |
 | alpha            | TWAS alpha |
@@ -104,7 +126,7 @@ The second `OUTPUT.scan.tsv` is individuals statistics at each SNP. It contains 
 | a0                  | non-effect allele |
 | a1                  | effect allele |
 | maf                 | minor allele frequency |
-| ld.score            | ld score (ie. sum_i r_ij^2, where r_ij is LD between snps i, j) |
+| ld.score            | ld score (ie. sum<sub>i</sub> r<sub>ij</sub><sup>2</sup>, where r<sub>ij</sub> is LD between snps i, j) |
 | ld.score.causal     | ld score for causal variants |
 | gwas.sim            | GWAS mode |
 | gwas.true           | true causal effect for complex trait |
@@ -115,3 +137,16 @@ The second `OUTPUT.scan.tsv` is individuals statistics at each SNP. It contains 
 | eqtl.se             | standard error in eQTL |
 | eqtl.model          | linear model to predict gene expression from genotype |
 | eqtl.model.beta     | coefficient estimated in selected linear model |
+
+## Notes
+Note
+
+## Support
+Please report any bugs or feature requests in the Issue Tracker. If users have any questions or comments, please contact Xinran Wang (xwang505@usc.edu), Zeyun Lu (zeyunlu@usc.edu), and Nicholas Mancuso (nmancuso@usc.edu).
+
+## Other Software
+Feel free to use other software developed by [Mancuso Lab](https://www.mancusolab.com/):
+
+* [MA-FOCUS](https://github.com/mancusolab/ma-focus): a Bayesian fine-mapping framework using [TWAS](https://www.nature.com/articles/ng.3506) statistics across multiple ancestries to identify the causal genes for complex traits.
+
+* [SuSiE-PCA](https://github.com/mancusolab/sushie): a scalable Bayesian variable selection technique for sparse principal component analysis.
