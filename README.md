@@ -26,7 +26,7 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 * GWAS: standard GWAS simulates GWAS summary statistics using individual-level genotype and phenotype data. Fast GWAS simulates GWAS summary statistics directly using the multivariate normal distribution parameterized by LD.
 * Linear model: twas_sim supports predicting gene expression using Elastic Net, LASSO, GBLUP, and true eQTL effect sizes. The dynamic import feature enables twas_sim to include external prediction tools easily.
 * TWAS: twas_sim compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes.
-* Horizontal pleiotropy: twas_sim account for the situation when nearby tagging genes are also tested in TWAS in addition to causal TWAS model.
+* Horizontal pleiotropy: twas_sim account for the situation when nearby tagging genes are also tested in TWAS in addition to the causal TWAS model.
 
 ## Usage
 `sim.py` is the actual simulator. Its usage is below:
@@ -85,10 +85,10 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 
 ## Example
 * LD reference panels: use optional prefix ```--eqtl-prefix $path-to-eQTL-LD-information``` and ```--test-prefix $path-to-TWAS-LD-information``` to PLINK-formatted  eQTL and TWAS LD. Otherwise, twas_sim will use GWAS LD for all simulations.
-* GWAS: standard GWAS is the default GWAS mode in twas_sim ```(no optional prefix needed)```. Use optional prefix ```--fast-gwas-sim``` to simulated GWAS in the fast mode.
-* Linear Model: use ```--linear-model enet``` to use Elastic Net model & use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below).
-* External Module: use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) for external python model script (fitting OLS model) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) for external R model (fitting [SuSiE](https://github.com/stephenslab/susieR) model).
-* Horizontal pleiotropy: twas_sim generates GWAS effect-size using causal TWAS model ```(no optional prefix needed)```. Use ```--indep-gwas``` to generate GWAS effect-sizes independently from eQTLs.
+* GWAS: twas_sim simulates standard GWAS by default ```(no optional prefix needed)```. Use optional prefix ```--fast-gwas-sim``` to simulated GWAS in the fast mode.
+* Linear Model: use ```--linear-model enet``` to use Elastic Net model, or use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below).
+* External Module: use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to script [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) for fitting external python model (OLS) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) for fitting external R model ([SuSiE](https://github.com/stephenslab/susieR)).
+* Horizontal pleiotropy: twas_sim generates GWAS effect-size using causal TWAS model by default ```(no optional prefix needed)```. Use ```--indep-gwas``` to generate GWAS effect-sizes independently from eQTLs.
 
 ## Output
 The output will be a two tab-delimited reports.
