@@ -158,8 +158,8 @@ Note
 Please report any bugs or feature requests in the Issue Tracker. If users have any questions or comments, please contact Xinran Wang (xwang505@usc.edu), Zeyun Lu (zeyunlu@usc.edu), and Nicholas Mancuso (nmancuso@usc.edu).
 
 ## Other Software
-Feel free to use other software developed by `Mancuso Lab <https://www.mancusolab.com/>`_:
+Feel free to use other software developed by [Mancuso Lab](https://www.mancusolab.com/):
 
-* `MA-FOCUS <https://github.com/mancusolab/ma-focus>`_: a Bayesian fine-mapping framework using `TWAS <https://www.nature.com/articles/ng.3506>`_ statistics across multiple ancestries to identify the causal genes for complex traits.
+* [MA-FOCUS](https://github.com/mancusolab/ma-focus): a Bayesian fine-mapping framework using [TWAS](https://www.nature.com/articles/ng.3506) statistics across multiple ancestries to identify the causal genes for complex traits.
 
-* `SuSiE-PCA <https://github.com/mancusolab/sushie>`_: a scalable Bayesian variable selection technique for sparse principal component analysis.
+* [SuSiE-PCA](https://github.com/mancusolab/sushie): a scalable Bayesian variable selection technique for sparse principal component analysis.
