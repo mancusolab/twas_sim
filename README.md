@@ -26,21 +26,21 @@ The script `example.sh` will generate a single TWAS statistic using the simulato
 #### Dataset:
 **twas_sim** first sample a genomic region uniformly at random. Then, it subset reference genotype data to the genomic region from the previous step, while filtering out genetic variants that are not bi-allelic SNPs, MAF < 1%, have HWE < 1e-5, and variant missingness > 10%. It additionally restrict to HapMap3 variants. Next, this QC’d reference genotype data is provided to **twas_sim** to perform simulations under a variety of eQTL and complex trait architectures, sample sizes, and linear prediction models.
 
-#### LD
-* **twas_sim** supports the option to use different LD reference panels across GWAS and eQTL simulations in addition to TWAS testing.
+#### Linkage Disequilibrium:
+**twas_sim** supports the option to use different LD reference panels across GWAS and eQTL simulations in addition to TWAS testing.
 
-#### GWAS
+#### GWAS:
 * **Standard GWAS** simulates GWAS summary statistics using individual-level genotype and phenotype data.
 * **Fast GWAS** simulates GWAS summary statistics directly using the multivariate normal distribution parameterized by LD.
 
-#### Linear Model
-* **twas_sim** supports predicting gene expression using Elastic Net, Lasso, GBLUP, and true eQTL effect sizes. The dynamic import feature enables twas_sim to include external prediction tools easily.
+#### Linear Model:
+**twas_sim** supports predicting gene expression using Elastic Net, Lasso, GBLUP, and true eQTL effect sizes. The dynamic import feature enables twas_sim to include external prediction tools easily.
 
-#### TWAS
-* **twas_sim** compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes.
+#### TWAS:
+**twas_sim** compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes.
 
 #### Horizontal Pleiotropy
-* We defined horizontal pleiotropy through linkage as the situation when nearby tagging genes are also tested in TWAS.
+The situation when nearby tagging genes are also tested in TWAS.
 
 ## Usage
 `sim.py` is the actual simulator. Its usage is below:
