@@ -149,4 +149,6 @@ Feel free to use other software developed by [Mancuso Lab](https://www.mancusola
 
 * [MA-FOCUS](https://github.com/mancusolab/ma-focus): a Bayesian fine-mapping framework using [TWAS](https://www.nature.com/articles/ng.3506) statistics across multiple ancestries to identify the causal genes for complex traits.
 
-* [SuSiE-PCA](https://github.com/mancusolab/sushie): a scalable Bayesian variable selection technique for sparse principal component analysis.
+* [SuSiE-PCA](https://github.com/mancusolab/susiepca): a scalable Bayesian variable selection technique for sparse principal component analysis.
+
+* [SuShiE](https://github.com/mancusolab/sushie): software to fine-map causal SNPs, compute prediction weights, and infer effect size correlation across multiple ancestries.
