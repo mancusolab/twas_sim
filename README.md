@@ -138,7 +138,7 @@ The script [example.external.sh](https://github.com/mancusolab/twas_sim/blob/tes
   ```
 * Second, we call optional arguments to generate TWAS test statistics.
   * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
-  * twas_sim supports dynamically loading custom code (e.g., Python, R, Julia). Here, we use external R module to fit effect sizes (specifically, [external_r.py](https://github.com/mancusolab/twas_sim/blob/test/external_r.py) calls external R script [external.R](https://github.com/mancusolab/twas_sim/blob/test/external.R) to call susieR on the simulated data).
+  * twas_sim supports dynamically loading custom code (e.g., Python, R, Julia). Here, we use external R module to fit effect sizes (note: [external_r.py](https://github.com/mancusolab/twas_sim/blob/test/external_r.py) calls [external.R](https://github.com/mancusolab/twas_sim/blob/test/external.R) to call susieR on the simulated data).
 
   ```
   python sim.py \
@@ -167,7 +167,7 @@ The batch script [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/
 
 * First, we define a list of GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model. The example below shows the first 4 lines of [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params):
 
-  | # ID  | N	        | NGE	     | MODEL  	| H2G	   | H2GE	    | LINEAR_MODEL |
+  | ID    | N	        | NGE	     | MODEL  	| H2G	   | H2GE	    | LINEAR_MODEL |
   | ------| ------    | ------   | ------   | ------ | ------   | ------       |
   | 1	    | 50000	    | 500	     | 1    	  | 0.1	   | 0	      | enet         |
   | 2	    | 100000	  | 500	     | 1	      | 0.1	   | 0	      | enet         |
