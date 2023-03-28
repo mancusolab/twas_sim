@@ -139,7 +139,7 @@ This script works as a showcase of the dynamic import function mentioned above. 
   H2GE=0.001 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
   LINEAR_MODEL=external
   ```
-* Second, we call optional arguments to generate TWAS test statistics.
+* Then, we call optional arguments to generate TWAS test statistics.
   * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
   * twas_sim supports dynamically loading custom code (e.g., Python, R, Julia). Here, we use external R module to fit effect sizes (note: [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) calls [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) to call susieR on the simulated data).
 
@@ -179,7 +179,7 @@ This batch script generates a single TWAS statistic using the simulator [sim.py]
   | ...   | ...       | ...      | ...      | ...    | ...      | ...          |
 
 
-* Next, we link [slurm.params](https://github.com/mancusolab/twas_sim/blob/master/slurm.params) to the shell script:
+* Second, we link [slurm.params](https://github.com/mancusolab/twas_sim/blob/master/slurm.params) to the shell script:
   ```
   # ID	N	NGE	MODEL	H2G	H2GE	LINEAR_MODEL
   IDX=$1
@@ -193,7 +193,7 @@ This batch script generates a single TWAS statistic using the simulator [sim.py]
 
 * Then, we call optional arguments to generate TWAS test statistics for each user-defined parameter sets.
   * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
-  * The first 4 lines of the `slurm.params` generate 4 TWAS test statistics using GWAS sample size of 50K, 100K, 200K, and 500K, with all other parameters fixed.
+  * The first 4 lines of the [slurm.params](https://github.com/mancusolab/twas_sim/blob/master/slurm.params) generate 4 TWAS test statistics using GWAS sample size of 50K, 100K, 200K, and 500K, with all other parameters fixed.
 
   ```
   python sim.py \
