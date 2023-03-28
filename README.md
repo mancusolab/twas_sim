@@ -84,7 +84,7 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
         --seed SEED           Seed for random number generation (default: None)
 
 ## Example
-[example.sh](#example.sh) | [example.external.sh](#example.external.sh) | [example.slurm.sh](#example.slurm.sh) | [Example](#Example) | [Output](#Output) | [Notes](#Notes) | [Support](#Support) | [Other Software](#Other-Software)
+[example.sh](#example.sh) | [example.external.sh](#example.external.sh) | [example.slurm.sh](#example.slurm.sh)
 
 ### example.sh
 The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh) will generate a single TWAS statistic using the simulator `sim.py`.
