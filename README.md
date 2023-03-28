@@ -128,7 +128,7 @@ This script generates a single TWAS statistic using the simulator [sim.py](https
 ### [example.external.sh](https://github.com/mancusolab/twas_sim/blob/master/example.external.sh)
 This script works as a showcase of the dynamic import function mentioned above. It generates a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py) with external python module [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) or external R module [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R).
 <details>
-<summary>details</summary>
+<summary>show details</summary>
 
 * First, we define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model:
   ```
@@ -166,7 +166,7 @@ This script works as a showcase of the dynamic import function mentioned above. 
 This batch script generates a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py) for each set of the user-defined parameters specified in [slurm.params](https://github.com/mancusolab/twas_sim/blob/master/slurm.params).
 
 <details>
-<summary>details</summary>
+<summary>show details</summary>
 
 * First, we define a list of GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model. The example below shows the first 4 lines of [slurm.params](https://github.com/mancusolab/twas_sim/blob/master/slurm.params):
 
