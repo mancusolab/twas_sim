@@ -84,7 +84,7 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
         --seed SEED           Seed for random number generation (default: None)
 
 ## Example
-### example.sh
+### [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh)
 The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh) will generate a single TWAS statistic using the simulator `sim.py`. The simulator currently supports fitting LASSO, Elastic Net, and GBLUP prediction models to predict gene expression into GWAS. It is easily extendable with dynamic import function to include additional linear models.
 
 <details>
@@ -102,8 +102,6 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
 
 * Then, we call optional arguments to generate TWAS test statistics.
   * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
-  * We use `Elastic Net` model to fit effect sizes.
-
   ```
   python sim.py \
       $odir/twas_sim_sample1_loci${IDX} \
