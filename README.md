@@ -91,35 +91,35 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
 <summary>example.sh workflow</summary>
 
 * First, we define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model:
-```
-N=100000 # N GWAS
-NGE=500 # N EQTL
-MODEL=1 # eQTL model; see sim.py for details
-H2G=0.1 # eQTL h2g
-H2GE=0.001 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
-LINEAR_MODEL=enet
-```
+  ```
+  N=100000 # N GWAS
+  NGE=500 # N EQTL
+  MODEL=1 # eQTL model; see sim.py for details
+  H2G=0.1 # eQTL h2g
+  H2GE=0.001 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
+  LINEAR_MODEL=enet
+  ```
 
 * Then, we call optional arguments to generate TWAS test statistics.
   * We use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
   * We use `Elastic Net` model to fit effect sizes.
 
-```
-python sim.py \
-    $odir/twas_sim_sample1_loci${IDX} \
-    --eqtl-prefix $odir/twas_sim_sample2_loci${IDX} \
-    --test-prefix $odir/twas_sim_sample2_loci${IDX} \
-    --ngwas $N \
-    --nqtl $NGE \
-    --ncausal $MODEL \
-    --eqtl-h2 $H2G \
-    --fast-gwas-sim \
-    --IDX ${IDX}\
-    --h2ge $H2GE \
-    --linear-model $LINEAR_MODEL \
-    --seed ${IDX} \
-    --output $odir/twas_sim_loci${IDX}
-```
+  ```
+  python sim.py \
+      $odir/twas_sim_sample1_loci${IDX} \
+      --eqtl-prefix $odir/twas_sim_sample2_loci${IDX} \
+      --test-prefix $odir/twas_sim_sample2_loci${IDX} \
+      --ngwas $N \
+      --nqtl $NGE \
+      --ncausal $MODEL \
+      --eqtl-h2 $H2G \
+      --fast-gwas-sim \
+      --IDX ${IDX}\
+      --h2ge $H2GE \
+      --linear-model $LINEAR_MODEL \
+      --seed ${IDX} \
+      --output $odir/twas_sim_loci${IDX}
+  ```
 </details>
 
 ### example.external.sh
@@ -128,35 +128,35 @@ The script [example.external.sh](https://github.com/mancusolab/twas_sim/blob/tes
 <summary>example.external.sh workflow</summary>
 
 * First, we define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model:
-```
-N=100000 # N GWAS
-NGE=500 # N EQTL
-MODEL=1 # eQTL model; see sim.py for details
-H2G=0.1 # eQTL h2g
-H2GE=0.001 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
-LINEAR_MODEL=external
-```
+  ```
+  N=100000 # N GWAS
+  NGE=500 # N EQTL
+  MODEL=1 # eQTL model; see sim.py for details
+  H2G=0.1 # eQTL h2g
+  H2GE=0.001 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
+  LINEAR_MODEL=external
+  ```
 * Second, we call optional arguments to generate TWAS test statistics.
   * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
   * twas_sim supports dynamically loading custom code (e.g., Python, R, Julia). Here, we use external R module to fit effect sizes (specifically, [external_r.py](https://github.com/mancusolab/twas_sim/blob/test/external_r.py) calls external R script [external.R](https://github.com/mancusolab/twas_sim/blob/test/external.R) to call susieR on the simulated data).
 
-```
-python sim.py \
-    $odir/twas_sim_sample1_loci${IDX} \
-    --eqtl-prefix $odir/twas_sim_sample2_loci${IDX} \
-    --test-prefix $odir/twas_sim_sample2_loci${IDX} \
-    --ngwas $N \
-    --nqtl $NGE \
-    --ncausal $MODEL \
-    --eqtl-h2 $H2G \
-    --fast-gwas-sim \
-    --IDX ${IDX}\
-    --h2ge $H2GE \
-    --linear-model $LINEAR_MODEL \
-    --external-module external_r \
-    --seed ${IDX} \
-    --output $odir/twas_sim_loci${IDX}
-```
+  ```
+  python sim.py \
+      $odir/twas_sim_sample1_loci${IDX} \
+      --eqtl-prefix $odir/twas_sim_sample2_loci${IDX} \
+      --test-prefix $odir/twas_sim_sample2_loci${IDX} \
+      --ngwas $N \
+      --nqtl $NGE \
+      --ncausal $MODEL \
+      --eqtl-h2 $H2G \
+      --fast-gwas-sim \
+      --IDX ${IDX}\
+      --h2ge $H2GE \
+      --linear-model $LINEAR_MODEL \
+      --external-module external_r \
+      --seed ${IDX} \
+      --output $odir/twas_sim_loci${IDX}
+  ```
 </details>
 
 ### example.slurm.sh
