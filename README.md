@@ -84,9 +84,9 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
         --seed SEED           Seed for random number generation (default: None)
 
 ## Example
-* The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh) will generate a single TWAS statistic using the simulator `sim.py`.
+The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh) will generate a single TWAS statistic using the simulator `sim.py`.
 
-In this script, we first define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model as listed below:
+* First, we define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model as listed below:
 ```
 N=100000 # N GWAS
 NGE=500 # N EQTL
@@ -96,9 +96,9 @@ H2GE=0.001 # variance explained in complex trait; 0 (null) to 0.01 (huge effect)
 LINEAR_MODEL=enet
 ```
 
-Then, we call optional arguments to generate TWAS test statistics.
-* In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
-* We use `Elastic Net` model to fit effect sizes and `fast GWAS` mode to simulate GWAS.
+* Then, we call optional arguments to generate TWAS test statistics.
+  * We use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
+  * We use `Elastic Net` model to fit effect sizes and `fast GWAS` mode to simulate GWAS.
 
 ```
 python sim.py \
@@ -117,10 +117,9 @@ python sim.py \
     --output $odir/twas_sim_loci${IDX}
 ```
 
+The script [example.external.sh](https://github.com/mancusolab/twas_sim/blob/test/example.external.sh) will generate a single TWAS statistic using the simulator `sim.py` and external python module [external_py.py](https://github.com/mancusolab/twas_sim/blob/test/external_py.py), or external R module [external_r.py](https://github.com/mancusolab/twas_sim/blob/test/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/test/external.R).
 
-* The script [example.external.sh](https://github.com/mancusolab/twas_sim/blob/test/example.external.sh) will generate a single TWAS statistic using the simulator `sim.py` and external python module [external_py.py](https://github.com/mancusolab/twas_sim/blob/test/external_py.py), or external R module [external_r.py](https://github.com/mancusolab/twas_sim/blob/test/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/test/external.R).
-
-In this script, we first define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model as listed below:
+* First, we define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model as listed below:
 ```
 N=100000 # N GWAS
 NGE=500 # N EQTL
@@ -129,9 +128,9 @@ H2G=0.1 # eQTL h2g
 H2GE=0.001 # variance explained in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
 LINEAR_MODEL=external
 ```
-Then, we call optional arguments to generate TWAS test statistics.
-* In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
-* twas_sim supports dynamically loading custom code (e.g., Python, R, Julia). Here, we use external R module to fit effect sizes. Specifically, `external_r.py` calls external R script `external.R` to call susieR on the simulated data.
+* Then, we call optional arguments to generate TWAS test statistics.
+  * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
+  * twas_sim supports dynamically loading custom code (e.g., Python, R, Julia). Here, we use external R module to fit effect sizes. Specifically, `external_r.py` calls external R script `external.R` to call susieR on the simulated data.
 
 ```
 python sim.py \
@@ -151,9 +150,9 @@ python sim.py \
     --output $odir/twas_sim_loci${IDX}
 ```
 
-* The script [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/test/example.slurm.sh) will generate a single TWAS statistic using the simulator `sim.py` for each of the the user-defined parameters specified in [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params).
+The script [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/test/example.slurm.sh) will generate a single TWAS statistic using the simulator `sim.py` for each of the the user-defined parameters specified in [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params).
 
-In this script, we first define a list of GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model. The example below shows the first 4 lines of `slurm.params`:
+* First, we define a list of GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model. The example below shows the first 4 lines of `slurm.params`:
 
 | # ID  | N	        | NGE	   | MODEL	| H2G	   | H2GE	  | LINEAR_MODEL |
 | ------| ------    | ------ | ------ | ------ | ------ | ------ |
@@ -164,7 +163,7 @@ In this script, we first define a list of GWAS sample size, eQTL sample size, eQ
 ...
 
 
-Next, we link the file to the shell script:
+* Next, we link the file to the shell script:
 ```
 # ID	N	NGE	MODEL	H2G	H2GE	LINEAR_MODEL
 IDX=$1
@@ -176,9 +175,9 @@ H2GE=$6 # h2ge in complex trait; 0 (null) to 0.01 (huge effect) are reasonable v
 LINEAR_MODEL=$7
 ```
 
-Then, we call optional arguments to generate TWAS test statistics for each of the user-defined parameters.
-* In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
-* The first 4 lines of the `slurm.params` makes twas_sim to generate 4 TWAS test statistics using GWAS Sample size of 50K, 100K, 200K, and 500K, with all other parameters unchanged.
+* Then, we call optional arguments to generate TWAS test statistics for each of the user-defined parameters.
+  * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
+  * The first 4 lines of the `slurm.params` makes twas_sim to generate 4 TWAS test statistics using GWAS Sample size of 50K, 100K, 200K, and 500K, with all other parameters unchanged.
 
 ```
 python sim.py \
@@ -197,7 +196,7 @@ python sim.py \
       --output $odir/twas_sim_loci${IDX}.fast
 ```
 
-Here, we run ten jobs at a time and 40 jobs in total:
+* Here, we run ten jobs at a time and 40 jobs in total:
 ```
 #SBATCH --array=1-4
 ```
