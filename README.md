@@ -16,7 +16,7 @@ then,
     conda activate twas_sim
 
 ## Overview
-The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh) will generate a single TWAS statistic using the simulator `sim.py`. Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command:
+The script [example.sh](https://github.com/mancusolab/twas_sim/blob/master/example.sh) will generate a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py). Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command:
 
 ```conda deactivate```
 
@@ -29,7 +29,7 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
 * Horizontal pleiotropy: twas_sim account for the situation when nearby tagging genes are also tested in TWAS in addition to the causal TWAS model.
 
 ## Usage
-`sim.py` is the actual simulator. Its usage is below:
+[sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py) is the actual simulator. Its usage is below:
 
     usage: sim.py [-h] [--eqtl-prefix EQTL_PREFIX] [--test-prefix TEST_PREFIX]
               [--fast-gwas-sim] [--ngwas NGWAS] [--nqtl NQTL] [--IDX IDX]
@@ -84,8 +84,8 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
         --seed SEED           Seed for random number generation (default: None)
 
 ## Example
-### [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh)
-The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh) will generate a single TWAS statistic using the simulator `sim.py`. The simulator currently supports fitting LASSO, Elastic Net, and GBLUP prediction models to predict gene expression into GWAS. It is easily extendable with dynamic import function to include additional linear models.
+### [example.sh](https://github.com/mancusolab/twas_sim/blob/master/example.sh)
+This script generates a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py). The simulator currently supports fitting LASSO, Elastic Net, and GBLUP prediction models to predict gene expression into GWAS. It is easily extendable with dynamic import function to include additional linear models.
 
 <details>
 <summary>example.sh workflow</summary>
@@ -120,8 +120,8 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
   ```
 </details>
 
-### example.external.sh
-The script [example.external.sh](https://github.com/mancusolab/twas_sim/blob/test/example.external.sh) will generate a single TWAS statistic using the simulator `sim.py` with external python module [external_py.py](https://github.com/mancusolab/twas_sim/blob/test/external_py.py), or external R module [external_r.py](https://github.com/mancusolab/twas_sim/blob/test/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/test/external.R).
+### [example.external.sh](https://github.com/mancusolab/twas_sim/blob/master/example.external.sh)
+This script works as a showcase of the dynamic import function mentioned above. It generates a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py) with external python module [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py), or external R module [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R).
 <details>
 <summary>example.external.sh workflow</summary>
 
@@ -136,7 +136,7 @@ The script [example.external.sh](https://github.com/mancusolab/twas_sim/blob/tes
   ```
 * Second, we call optional arguments to generate TWAS test statistics.
   * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
-  * twas_sim supports dynamically loading custom code (e.g., Python, R, Julia). Here, we use external R module to fit effect sizes (note: [external_r.py](https://github.com/mancusolab/twas_sim/blob/test/external_r.py) calls [external.R](https://github.com/mancusolab/twas_sim/blob/test/external.R) to call susieR on the simulated data).
+  * twas_sim supports dynamically loading custom code (e.g., Python, R, Julia). Here, we use external R module to fit effect sizes (note: [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) calls [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) to call susieR on the simulated data).
 
   ```
   python sim.py \
@@ -157,13 +157,13 @@ The script [example.external.sh](https://github.com/mancusolab/twas_sim/blob/tes
   ```
 </details>
 
-### example.slurm.sh
-The batch script [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/test/example.slurm.sh) will generate a single TWAS statistic using the simulator `sim.py` for each of the user-defined parameters specified in [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params).
+### [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/master/example.slurm.sh)
+This batch script generates a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py) for each of the user-defined parameters specified in [slurm.params](https://github.com/mancusolab/twas_sim/blob/master/slurm.params).
 
 <details>
 <summary>example.slurm.sh workflow</summary>
 
-* First, we define a list of GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model. The example below shows the first 4 lines of [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params):
+* First, we define a list of GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model. The example below shows the first 4 lines of [slurm.params](https://github.com/mancusolab/twas_sim/blob/master/slurm.params):
 
   | ID    | N	        | NGE	     | MODEL  	| H2G	   | H2GE	    | LINEAR_MODEL |
   | ------| ------    | ------   | ------   | ------ | ------   | ------       |
@@ -174,7 +174,7 @@ The batch script [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/
   | ...   | ...       | ...      | ...      | ...    | ...      | ...          |
 
 
-* Next, we link [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params) to the shell script:
+* Next, we link [slurm.params](https://github.com/mancusolab/twas_sim/blob/master/slurm.params) to the shell script:
   ```
   # ID	N	NGE	MODEL	H2G	H2GE	LINEAR_MODEL
   IDX=$1
