@@ -1,11 +1,13 @@
 # twas_sim
-Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait. **The manuscript is in progress.**
+
+A python software leveraging real genotype data to simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on the complex trait. **The manuscript is in progress.**
 
 [Installation](#Installation) | [Overview](#Overview) | [Usage](#Usage) | [Example](#Example) | [Notes](#Notes) | [Output](#Output) | [Support](#Support) | [Other Software](#Other-Software)
 
 
 ## Installation
-To download the TWAS simulator first type the commands
+
+To download the twas_sim, first type the commands
 
     git clone https://github.com/mancusolab/twas_sim.git
     cd twas_sim
@@ -16,24 +18,27 @@ then,
     conda activate twas_sim
 
 ## Overview
-The script [example.sh](https://github.com/mancusolab/twas_sim/blob/master/example.sh) will generate a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py). Please be sure to update the paths in `example.sh` first. The script relies on PLINK-formatted genotype data. We recommend downloading [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) for use. When you are done with the simulator be sure to enter the command:
+
+The script [example.sh](https://github.com/mancusolab/twas_sim/blob/master/example.sh) generates a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py). Please make sure to update the corresponding paths in `example.sh` first. The scripts rely on PLINK-formatted genotype data. We recommend to use data from [1000G](https://data.broadinstitute.org/alkesgroup/LDSCORE/1000G_Phase3_plinkfiles.tgz) as reference genotypes. Make sure to enter the command when you are done with the simulator:
 
 ```conda deactivate```
 
 #### Key features:
-* **Dataset:** twas_sim first sample a genomic region uniformly at random. Then, it subset reference genotype data to the genomic region from the previous step, while filtering out genetic variants that are not bi-allelic SNPs, MAF < 1%, have HWE < 1e-5, and variant missingness > 10%. It additionally restrict to HapMap3 variants.
+
+* **Dataset:** twas_sim first samples a genomic region uniformly at random. Then, it subsets reference genotype data to the genomic region from the previous step while removing genetic variants that are non-biallelic, MAF < 1%, HWE < 1e-5, and variant missingness > 10%. In addition, it restricts the genotype to HapMap3 variants.
 
 * **LD reference panels:** twas_sim supports the option to use different LD reference panels across GWAS and eQTL simulations in addition to TWAS testing.
 
 * **GWAS:** standard GWAS simulates GWAS summary statistics using individual-level genotype and phenotype data. Fast GWAS simulates GWAS summary statistics directly using the multivariate normal distribution parameterized by LD.
 
-* **Linear model:** twas_sim supports predicting gene expression using Elastic Net, LASSO, GBLUP, and true eQTL effect sizes. The dynamic import feature enables twas_sim to include external prediction tools easily.
+* **Linear model:** twas_sim supports predicting gene expressions using Elastic Net, LASSO, GBLUP, and true eQTL effect sizes. The dynamic import feature enables twas_sim to easily include external prediction tools.
 
-* **TWAS:** twas_sim compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes.
+* **TWAS:** twas_sim computes TWAS test statistics using LD, GWAS Z-scores, and estimated eQTL effect sizes.
 
-* **Horizontal pleiotropy:** twas_sim account for the situation when nearby tagging genes are also tested in TWAS in addition to the causal TWAS model.
+* **Horizontal pleiotropy:** twas_sim accounts for the situation when nearby tagging genes are also tested in TWAS in addition to the causal TWAS model.
 
 ## Usage
+
 [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py) is the actual simulator. Its usage is below:
 
     usage: sim.py [-h] [--eqtl-prefix EQTL_PREFIX] [--test-prefix TEST_PREFIX]
@@ -89,8 +94,10 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/master/examp
         --seed SEED           Seed for random number generation (default: None)
 
 ## Example
+
 ### [example.sh](https://github.com/mancusolab/twas_sim/blob/master/example.sh)
-This script generates a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py). The simulator currently supports fitting LASSO, Elastic Net, and GBLUP prediction models to predict gene expression into GWAS. It is easily extendable with dynamic import function to include additional linear models.
+
+This example script generates a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py). The simulator currently supports fitting LASSO, Elastic Net, and GBLUP prediction models to predict gene expression into GWAS. It is easily extendable with dynamic import function to include additional linear models.
 
 <details>
 <summary>show details</summary>
@@ -126,6 +133,7 @@ This script generates a single TWAS statistic using the simulator [sim.py](https
 </details>
 
 ### [example.external.sh](https://github.com/mancusolab/twas_sim/blob/master/example.external.sh)
+
 This script works as a showcase of the dynamic import function mentioned above. It generates a single TWAS statistic with external python module [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) or external R module [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R).
 
 <details>
@@ -164,6 +172,7 @@ This script works as a showcase of the dynamic import function mentioned above. 
 </details>
 
 ### [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/master/example.slurm.sh)
+
 This is a batch script of the simulator. It generates TWAS statistic for a list of parameters specified in [slurm.params](https://github.com/mancusolab/twas_sim/blob/master/slurm.params).
 
 <details>
@@ -214,6 +223,7 @@ This is a batch script of the simulator. It generates TWAS statistic for a list 
   ```
 
 * Here, we run ten jobs at a time and 40 jobs in total:
+    
   ```
   #SBATCH --array=1-4
   ```
@@ -235,6 +245,7 @@ This is a batch script of the simulator. It generates TWAS statistic for a list 
 * **Horizontal pleiotropy:** twas_sim generates GWAS effect-size using causal TWAS model by default ```(no optional prefix needed)```. Use ```--indep-gwas``` to generate GWAS effect-sizes under horizontal pleiotropy through linkage model.
 
 ## Output
+
 The output will be a two tab-delimited reports.
 
 The first `OUTPUT.summary.tsv` is a high-level summary that contains two columns:
@@ -283,6 +294,7 @@ The second `OUTPUT.scan.tsv` is individuals statistics at each SNP. It contains 
 | eqtl.model.beta     | coefficient estimated in selected linear model |
 
 ## Support
+
 Please report any bugs or feature requests in the Issue Tracker. If users have any questions or comments, please contact Xinran Wang (xwang505@usc.edu), Zeyun Lu (zeyunlu@usc.edu), and Nicholas Mancuso (nmancuso@usc.edu).
 
 ## Other Software
@@ -290,4 +302,6 @@ Feel free to use other software developed by [Mancuso Lab](https://www.mancusola
 
 * [MA-FOCUS](https://github.com/mancusolab/ma-focus): a Bayesian fine-mapping framework using [TWAS](https://www.nature.com/articles/ng.3506) statistics across multiple ancestries to identify the causal genes for complex traits.
 
-* [SuSiE-PCA](https://github.com/mancusolab/sushie): a scalable Bayesian variable selection technique for sparse principal component analysis.
+* [SuSiE-PCA](https://github.com/mancusolab/susiepca): a scalable Bayesian variable selection technique for sparse principal component analysis.
+
+* [SuShiE](https://github.com/mancusolab/sushie): a multi-ancestry variational fine-mapping method on molecular data.
