@@ -85,7 +85,7 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
 
 ## Example
 ### example.sh
-The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh) will generate a single TWAS statistic using the simulator `sim.py`. The simulator currently supports fitting LASSO, Elastic Net, and GBLUP prediction models to predict gene expression into GWAS. It is easily extendable with dynamic import function to include additional linear models to accommodate TWAS methods.
+The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh) will generate a single TWAS statistic using the simulator `sim.py`. The simulator currently supports fitting LASSO, Elastic Net, and GBLUP prediction models to predict gene expression into GWAS. It is easily extendable with dynamic import function to include additional linear models.
 
 <details>
 <summary>example.sh workflow</summary>
@@ -101,7 +101,7 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
   ```
 
 * Then, we call optional arguments to generate TWAS test statistics.
-  * We use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
+  * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
   * We use `Elastic Net` model to fit effect sizes.
 
   ```
@@ -190,7 +190,7 @@ The batch script [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/
 
 * Then, we call optional arguments to generate TWAS test statistics for each user-defined parameter sets.
   * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
-  * The first 4 lines of the `slurm.params` generates 4 TWAS test statistics using GWAS sample size of 50K, 100K, 200K, and 500K, with all other parameters fixed.
+  * The first 4 lines of the `slurm.params` generate 4 TWAS test statistics using GWAS sample size of 50K, 100K, 200K, and 500K, with all other parameters fixed.
 
   ```
   python sim.py \
