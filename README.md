@@ -155,11 +155,11 @@ python sim.py \
 
 In this script, we first define a list of GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model. The example below shows the first 4 lines of `slurm.params`:
 ```
-# ID	N	        NGE	  MODEL	H2G	  H2GE	LINEAR_MODEL
-1	    50000	    500	  1    	0.1	  0	    enet
-2	    100000	  500	  1	    0.1	  0	    enet
-3	    200000	  500	  1	    0.1	  0	    enet
-4	    500000	  500	  1	    0.1	  0	    enet
+|# ID	  |N	        |NGE	  |MODEL	|H2G	  |H2GE	  |LINEAR_MODEL|
+|1	    |50000	    |500	  |1    	|0.1	  |0	    |enet|
+|2	    |100000	    |500	  |1	    |0.1	  |0	    |enet|
+|3	    |200000	    |500	  |1	    |0.1	  |0	    |enet|
+|4	    |500000	    |500	  |1	    |0.1	  |0	    |enet|
 ...
 ```
 
