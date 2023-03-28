@@ -154,14 +154,15 @@ python sim.py \
 * The script [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/test/example.slurm.sh) will generate a single TWAS statistic using the simulator `sim.py` for each of the the user-defined parameters specified in [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params).
 
 In this script, we first define a list of GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model. The example below shows the first 4 lines of `slurm.params`:
-```
-|# ID	  |N	        |NGE	  |MODEL	|H2G	  |H2GE	  |LINEAR_MODEL|
-|1	    |50000	    |500	  |1    	|0.1	  |0	    |enet|
-|2	    |100000	    |500	  |1	    |0.1	  |0	    |enet|
-|3	    |200000	    |500	  |1	    |0.1	  |0	    |enet|
-|4	    |500000	    |500	  |1	    |0.1	  |0	    |enet|
+
+| # ID  | N	        | NGE	   | MODEL	| H2G	   | H2GE	  | LINEAR_MODEL |
+| ------| ------    | ------ | ------ | ------ | ------ | ------ |
+| 1	    | 50000	      | 500	   | 1    	  | 0.1	   | 0	      | enet |
+| 2	    | 100000	    | 500	   | 1	      | 0.1	   | 0	      | enet |
+| 3	    | 200000	    | 500	   | 1	      | 0.1	   | 0	      | enet |
+| 4	    | 500000	    | 500	   | 1	      | 0.1	   | 0	      | enet |
 ...
-```
+
 
 Next, we link the file to the shell script:
 ```
