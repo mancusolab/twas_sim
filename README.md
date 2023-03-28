@@ -1,7 +1,7 @@
 # twas_sim
 Using real genotype data, simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on complex trait. **The manuscript is in progress.**
 
-[Installation](#Installation) | [Overview](#Overview) | [Usage](#Usage) | [Example](#Example) | [Output](#Output) | [Notes](#Notes) | [Support](#Support) | [Other Software](#Other-Software)
+[Installation](#Installation) | [Overview](#Overview) | [Usage](#Usage) | [Example](#Example) | [Notes](#Notes) | [Output](#Output) | [Support](#Support) | [Other Software](#Other-Software)
 
 
 ## Installation
@@ -92,7 +92,7 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
 <details>
 <summary>example.sh workflow</summary>
 
-* First, we define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model as listed below:
+* First, we define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model:
 ```
 N=100000 # N GWAS
 NGE=500 # N EQTL
@@ -104,7 +104,7 @@ LINEAR_MODEL=enet
 
 * Then, we call optional arguments to generate TWAS test statistics.
   * We use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
-  * We use `Elastic Net` model to fit effect sizes and `fast GWAS` mode to simulate GWAS.
+  * We use `Elastic Net` model to fit effect sizes.
 
 ```
 python sim.py \
@@ -129,7 +129,7 @@ The script [example.external.sh](https://github.com/mancusolab/twas_sim/blob/tes
 <details>
 <summary>example.external.sh workflow</summary>
 
-* First, we define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model as listed below:
+* First, we define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model:
 ```
 N=100000 # N GWAS
 NGE=500 # N EQTL
@@ -140,7 +140,7 @@ LINEAR_MODEL=external
 ```
 * Second, we call optional arguments to generate TWAS test statistics.
   * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
-  * twas_sim supports dynamically loading custom code (e.g., Python, R, Julia). Here, we use external R module to fit effect sizes. Specifically, `external_r.py` calls external R script `external.R` to call susieR on the simulated data.
+  * twas_sim supports dynamically loading custom code (e.g., Python, R, Julia). Here, we use external R module to fit effect sizes (specifically, [external_r.py](https://github.com/mancusolab/twas_sim/blob/test/external_r.py) calls external R script [external.R](https://github.com/mancusolab/twas_sim/blob/test/external.R) to call susieR on the simulated data).
 
 ```
 python sim.py \
@@ -167,7 +167,7 @@ The script [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/test/e
 <details>
 <summary>example.slurm.sh workflow</summary>
 
-* First, we define a list of GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model. The example below shows the first 4 lines of `slurm.params`:
+* First, we define a list of GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model. The example below shows the first 4 lines of [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params):
 
 | # ID  | N	        | NGE	   | MODEL	| H2G	   | H2GE	  | LINEAR_MODEL |
 | ------| ------    | ------ | ------ | ------ | ------ | ------ |
@@ -178,7 +178,7 @@ The script [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/test/e
 ...
 
 
-* Next, we link the file to the shell script:
+* Next, we link [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params) to the shell script:
 ```
 # ID	N	NGE	MODEL	H2G	H2GE	LINEAR_MODEL
 IDX=$1
@@ -190,9 +190,9 @@ H2GE=$6 # h2ge in complex trait; 0 (null) to 0.01 (huge effect) are reasonable v
 LINEAR_MODEL=$7
 ```
 
-* Then, we call optional arguments to generate TWAS test statistics for each of the user-defined parameters.
+* Then, we call optional arguments to generate TWAS test statistics for each user-defined parameter sets.
   * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
-  * The first 4 lines of the `slurm.params` makes twas_sim to generate 4 TWAS test statistics using GWAS Sample size of 50K, 100K, 200K, and 500K, with all other parameters unchanged.
+  * The first 4 lines of the `slurm.params` generates 4 TWAS test statistics using GWAS sample size of 50K, 100K, 200K, and 500K, with all other parameters fixed.
 
 ```
 python sim.py \
@@ -220,6 +220,13 @@ start=`python -c "print( 1 + 10 * int(int($NR-1)))"`
 stop=$((start + 9))
 ```
 </details>
+
+## Notes
+* LD reference panels: use optional prefix ```--eqtl-prefix $path-to-eQTL-LD-information``` and ```--test-prefix $path-to-TWAS-LD-information``` to point to PLINK-formatted eQTL and TWAS LD. Otherwise, twas_sim will use GWAS LD for all simulations.
+* GWAS: twas_sim simulates standard GWAS by default ```(no optional prefix needed)```. Use optional prefix ```--fast-gwas-sim``` to simulated GWAS in the fast mode.
+* Linear Model: use ```--linear-model enet``` to use Elastic Net model, or use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below).
+* External Module: use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to script [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) to fit external python model (OLS) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) to fit external R model ([SuSiE](https://github.com/stephenslab/susieR)).
+* Horizontal pleiotropy: twas_sim generates GWAS effect-size using causal TWAS model by default ```(no optional prefix needed)```. Use ```--indep-gwas``` to generate GWAS effect-sizes under horizontal pleiotropy through linkage model.
 
 ## Output
 The output will be a two tab-delimited reports.
@@ -268,13 +275,6 @@ The second `OUTPUT.scan.tsv` is individuals statistics at each SNP. It contains 
 | eqtl.se             | standard error in eQTL |
 | eqtl.model          | linear model to predict gene expression from genotype |
 | eqtl.model.beta     | coefficient estimated in selected linear model |
-
-## Notes
-* LD reference panels: use optional prefix ```--eqtl-prefix $path-to-eQTL-LD-information``` and ```--test-prefix $path-to-TWAS-LD-information``` to point to PLINK-formatted eQTL and TWAS LD. Otherwise, twas_sim will use GWAS LD for all simulations.
-* GWAS: twas_sim simulates standard GWAS by default ```(no optional prefix needed)```. Use optional prefix ```--fast-gwas-sim``` to simulated GWAS in the fast mode.
-* Linear Model: use ```--linear-model enet``` to use Elastic Net model, or use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below).
-* External Module: use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to script [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) to fit external python model (OLS) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) to fit external R model ([SuSiE](https://github.com/stephenslab/susieR)).
-* Horizontal pleiotropy: twas_sim generates GWAS effect-size using causal TWAS model by default ```(no optional prefix needed)```. Use ```--indep-gwas``` to generate GWAS effect-sizes under horizontal pleiotropy through linkage model.
 
 ## Support
 Please report any bugs or feature requests in the Issue Tracker. If users have any questions or comments, please contact Xinran Wang (xwang505@usc.edu), Zeyun Lu (zeyunlu@usc.edu), and Nicholas Mancuso (nmancuso@usc.edu).
