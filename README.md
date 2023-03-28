@@ -84,10 +84,8 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example
         --seed SEED           Seed for random number generation (default: None)
 
 ## Example
-[example.sh](#example.sh) | [example.external.sh](#example.external.sh) | [example.slurm.sh](#example.slurm.sh)
-
 ### example.sh
-The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh) will generate a single TWAS statistic using the simulator `sim.py`.
+The script [example.sh](https://github.com/mancusolab/twas_sim/blob/test/example.sh) will generate a single TWAS statistic using the simulator `sim.py`. The simulator currently supports fitting LASSO, Elastic Net, and GBLUP prediction models to predict gene expression into GWAS. It is easily extendable with dynamic import function to include additional linear models to accommodate TWAS methods.
 
 <details>
 <summary>example.sh workflow</summary>
@@ -125,7 +123,7 @@ python sim.py \
 </details>
 
 ### example.external.sh
-The script [example.external.sh](https://github.com/mancusolab/twas_sim/blob/test/example.external.sh) will generate a single TWAS statistic using the simulator `sim.py` and external python module [external_py.py](https://github.com/mancusolab/twas_sim/blob/test/external_py.py), or external R module [external_r.py](https://github.com/mancusolab/twas_sim/blob/test/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/test/external.R).
+The script [example.external.sh](https://github.com/mancusolab/twas_sim/blob/test/example.external.sh) will generate a single TWAS statistic using the simulator `sim.py` with external python module [external_py.py](https://github.com/mancusolab/twas_sim/blob/test/external_py.py), or external R module [external_r.py](https://github.com/mancusolab/twas_sim/blob/test/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/test/external.R).
 <details>
 <summary>example.external.sh workflow</summary>
 
@@ -162,63 +160,63 @@ python sim.py \
 </details>
 
 ### example.slurm.sh
-The script [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/test/example.slurm.sh) will generate a single TWAS statistic using the simulator `sim.py` for each of the the user-defined parameters specified in [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params).
+The batch script [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/test/example.slurm.sh) will generate a single TWAS statistic using the simulator `sim.py` for each of the user-defined parameters specified in [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params).
 
 <details>
 <summary>example.slurm.sh workflow</summary>
 
 * First, we define a list of GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model. The example below shows the first 4 lines of [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params):
 
-| # ID  | N	        | NGE	   | MODEL	| H2G	   | H2GE	  | LINEAR_MODEL |
-| ------| ------    | ------ | ------ | ------ | ------ | ------ |
-| 1	    | 50000	      | 500	   | 1    	  | 0.1	   | 0	      | enet |
-| 2	    | 100000	    | 500	   | 1	      | 0.1	   | 0	      | enet |
-| 3	    | 200000	    | 500	   | 1	      | 0.1	   | 0	      | enet |
-| 4	    | 500000	    | 500	   | 1	      | 0.1	   | 0	      | enet |
-...
+  | # ID  | N	        | NGE	     | MODEL  	| H2G	   | H2GE	    | LINEAR_MODEL |
+  | ------| ------    | ------   | ------   | ------ | ------   | ------       |
+  | 1	    | 50000	    | 500	     | 1    	  | 0.1	   | 0	      | enet         |
+  | 2	    | 100000	  | 500	     | 1	      | 0.1	   | 0	      | enet         |
+  | 3	    | 200000	  | 500	     | 1	      | 0.1	   | 0	      | enet         |
+  | 4	    | 500000	  | 500	     | 1	      | 0.1	   | 0	      | enet         |
+  | ...   | ...       | ...      | ...      | ...    | ...      | ...          |
 
 
 * Next, we link [slurm.params](https://github.com/mancusolab/twas_sim/blob/test/slurm.params) to the shell script:
-```
-# ID	N	NGE	MODEL	H2G	H2GE	LINEAR_MODEL
-IDX=$1
-N=$2 # N GWAS
-NGE=$3 # N EQTL
-MODEL=$4 # eQTL model; see sim.py for details
-H2G=$5 # eQTL h2g
-H2GE=$6 # h2ge in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
-LINEAR_MODEL=$7
-```
+  ```
+  # ID	N	NGE	MODEL	H2G	H2GE	LINEAR_MODEL
+  IDX=$1
+  N=$2 # N GWAS
+  NGE=$3 # N EQTL
+  MODEL=$4 # eQTL model; see sim.py for details
+  H2G=$5 # eQTL h2g
+  H2GE=$6 # h2ge in complex trait; 0 (null) to 0.01 (huge effect) are reasonable values
+  LINEAR_MODEL=$7
+  ```
 
 * Then, we call optional arguments to generate TWAS test statistics for each user-defined parameter sets.
   * In this example, we use the first reference panel to compute GWAS LD information and the second reference panel to compute eQTL and TWAS LD information.
   * The first 4 lines of the `slurm.params` generates 4 TWAS test statistics using GWAS sample size of 50K, 100K, 200K, and 500K, with all other parameters fixed.
 
-```
-python sim.py \
-      $odir/twas_sim_sample1_loci${IDX} \
-      --eqtl-prefix $odir/twas_sim_sample2_loci${IDX} \
-      --test-prefix $odir/twas_sim_sample2_loci${IDX} \
-      --ngwas $N \
-      --nqtl $NGE \
-      --ncausal $MODEL \
-      --eqtl-h2 $H2G \
-      --fast-gwas-sim \
-      --IDX ${IDX}\
-      --h2ge $H2GE \
-      --linear-model $LINEAR_MODEL \
-      --seed ${IDX} \
-      --output $odir/twas_sim_loci${IDX}.fast
-```
+  ```
+  python sim.py \
+        $odir/twas_sim_sample1_loci${IDX} \
+        --eqtl-prefix $odir/twas_sim_sample2_loci${IDX} \
+        --test-prefix $odir/twas_sim_sample2_loci${IDX} \
+        --ngwas $N \
+        --nqtl $NGE \
+        --ncausal $MODEL \
+        --eqtl-h2 $H2G \
+        --fast-gwas-sim \
+        --IDX ${IDX}\
+        --h2ge $H2GE \
+        --linear-model $LINEAR_MODEL \
+        --seed ${IDX} \
+        --output $odir/twas_sim_loci${IDX}.fast
+  ```
 
 * Here, we run ten jobs at a time and 40 jobs in total:
-```
-#SBATCH --array=1-4
-```
-```
-start=`python -c "print( 1 + 10 * int(int($NR-1)))"`
-stop=$((start + 9))
-```
+  ```
+  #SBATCH --array=1-4
+  ```
+  ```
+  start=`python -c "print( 1 + 10 * int(int($NR-1)))"`
+  stop=$((start + 9))
+  ```
 </details>
 
 ## Notes
