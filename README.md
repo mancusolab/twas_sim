@@ -126,7 +126,8 @@ This script generates a single TWAS statistic using the simulator [sim.py](https
 </details>
 
 ### [example.external.sh](https://github.com/mancusolab/twas_sim/blob/master/example.external.sh)
-This script works as a showcase of the dynamic import function mentioned above. It generates a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py) with external python module [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) or external R module [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R).
+This script works as a showcase of the dynamic import function mentioned above. It generates a single TWAS statistic with external python module [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) or external R module [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R).
+
 <details>
 <summary>show details</summary>
 
@@ -163,7 +164,7 @@ This script works as a showcase of the dynamic import function mentioned above. 
 </details>
 
 ### [example.slurm.sh](https://github.com/mancusolab/twas_sim/blob/master/example.slurm.sh)
-This batch script generates a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py) for each set of the user-defined parameters specified in [slurm.params](https://github.com/mancusolab/twas_sim/blob/master/slurm.params).
+This is a batch script of the simulator. It generates TWAS statistic for a list of parameters specified in [slurm.params](https://github.com/mancusolab/twas_sim/blob/master/slurm.params).
 
 <details>
 <summary>show details</summary>
