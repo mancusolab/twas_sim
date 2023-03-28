@@ -21,12 +21,17 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/master/examp
 ```conda deactivate```
 
 #### Key features:
-* Dataset: twas_sim first sample a genomic region uniformly at random. Then, it subset reference genotype data to the genomic region from the previous step, while filtering out genetic variants that are not bi-allelic SNPs, MAF < 1%, have HWE < 1e-5, and variant missingness > 10%. It additionally restrict to HapMap3 variants.
-* LD reference panels: twas_sim supports the option to use different LD reference panels across GWAS and eQTL simulations in addition to TWAS testing.
-* GWAS: standard GWAS simulates GWAS summary statistics using individual-level genotype and phenotype data. Fast GWAS simulates GWAS summary statistics directly using the multivariate normal distribution parameterized by LD.
-* Linear model: twas_sim supports predicting gene expression using Elastic Net, LASSO, GBLUP, and true eQTL effect sizes. The dynamic import feature enables twas_sim to include external prediction tools easily.
-* TWAS: twas_sim compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes.
-* Horizontal pleiotropy: twas_sim account for the situation when nearby tagging genes are also tested in TWAS in addition to the causal TWAS model.
+* **Dataset:** twas_sim first sample a genomic region uniformly at random. Then, it subset reference genotype data to the genomic region from the previous step, while filtering out genetic variants that are not bi-allelic SNPs, MAF < 1%, have HWE < 1e-5, and variant missingness > 10%. It additionally restrict to HapMap3 variants.
+
+* **LD reference panels:** twas_sim supports the option to use different LD reference panels across GWAS and eQTL simulations in addition to TWAS testing.
+
+* **GWAS:** standard GWAS simulates GWAS summary statistics using individual-level genotype and phenotype data. Fast GWAS simulates GWAS summary statistics directly using the multivariate normal distribution parameterized by LD.
+
+* **Linear model:** twas_sim supports predicting gene expression using Elastic Net, LASSO, GBLUP, and true eQTL effect sizes. The dynamic import feature enables twas_sim to include external prediction tools easily.
+
+* **TWAS:** twas_sim compute TWAS test statistics using LD, GWAS Z-score, and estimated eQTL effect sizes.
+
+* **Horizontal pleiotropy:** twas_sim account for the situation when nearby tagging genes are also tested in TWAS in addition to the causal TWAS model.
 
 ## Usage
 [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py) is the actual simulator. Its usage is below:
@@ -88,7 +93,7 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/master/examp
 This script generates a single TWAS statistic using the simulator [sim.py](https://github.com/mancusolab/twas_sim/blob/master/sim.py). The simulator currently supports fitting LASSO, Elastic Net, and GBLUP prediction models to predict gene expression into GWAS. It is easily extendable with dynamic import function to include additional linear models.
 
 <details>
-<summary>details</summary>
+<summary>show details</summary>
 
 * First, we define GWAS sample size, eQTL sample size, eQTL model, eQTL h2g, variance explained in complex trait, and linear model:
   ```
@@ -218,11 +223,15 @@ This batch script generates a single TWAS statistic using the simulator [sim.py]
 </details>
 
 ## Notes
-* LD reference panels: use optional prefix ```--eqtl-prefix $path-to-eQTL-LD-information``` and ```--test-prefix $path-to-TWAS-LD-information``` to point to PLINK-formatted eQTL and TWAS LD. Otherwise, twas_sim will use GWAS LD for all simulations.
-* GWAS: twas_sim simulates standard GWAS by default ```(no optional prefix needed)```. Use optional prefix ```--fast-gwas-sim``` to simulated GWAS in the fast mode.
-* Linear Model: use ```--linear-model enet``` to use Elastic Net model, or use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below).
-* External Module: use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to script [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) to fit external python model (OLS) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) to fit external R model ([SuSiE](https://github.com/stephenslab/susieR)).
-* Horizontal pleiotropy: twas_sim generates GWAS effect-size using causal TWAS model by default ```(no optional prefix needed)```. Use ```--indep-gwas``` to generate GWAS effect-sizes under horizontal pleiotropy through linkage model.
+* **LD reference panels:** use optional prefix ```--eqtl-prefix $path-to-eQTL-LD-information``` and ```--test-prefix $path-to-TWAS-LD-information``` to point to PLINK-formatted eQTL and TWAS LD. Otherwise, twas_sim will use GWAS LD for all simulations.
+
+* **GWAS:** twas_sim simulates standard GWAS by default ```(no optional prefix needed)```. Use optional prefix ```--fast-gwas-sim``` to simulated GWAS in the fast mode.
+
+* **Linear Model:** use ```--linear-model enet``` to use Elastic Net model, or use ```--linear-model external``` to indicate an external model should be loaded (please see External Module below).
+
+* **External Module:** use ```--linear-model external``` to load external predictive model and ```--external-module path-to-external-file``` to specify path to external Python file. e.g., if `my_module.py` contains `fit` function then pass in `my_module`. Please refer to script [external_py.py](https://github.com/mancusolab/twas_sim/blob/master/external_py.py) to fit external python model (OLS) and [external_r.py](https://github.com/mancusolab/twas_sim/blob/master/external_r.py) and [external.R](https://github.com/mancusolab/twas_sim/blob/master/external.R) to fit external R model ([SuSiE](https://github.com/stephenslab/susieR)).
+
+* **Horizontal pleiotropy:** twas_sim generates GWAS effect-size using causal TWAS model by default ```(no optional prefix needed)```. Use ```--indep-gwas``` to generate GWAS effect-sizes under horizontal pleiotropy through linkage model.
 
 ## Output
 The output will be a two tab-delimited reports.
