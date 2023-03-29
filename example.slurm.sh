@@ -2,7 +2,7 @@
 #SBATCH --ntasks=1
 #SBATCH --time=8:00:00
 #SBATCH --mem=12Gb
-#SBATCH --array=1-576
+#SBATCH --array=1-4
 
 if [ ! $SLURM_ARRAY_TASK_ID ]; then
   NR=$1
@@ -16,8 +16,8 @@ conda activate twas_sim
 # !!! change this to use SGE or the number of ind tasks per scheduler !!!
 # 40 jobs in total (using slurm.params file)
 # ten jobs at a time
-start=`python -c "print( 1 + 100 * int(int($NR-1)))"`
-stop=$((start + 99))
+start=`python -c "print( 1 + 10 * int(int($NR-1)))"`
+stop=$((start + 9))
 
 hapmap=HAPMAP_SNPS/
 loci=ind_loci.bed
@@ -40,7 +40,7 @@ MIN_SNPS=450
 # PARAMETERS
 for IDX in `seq $start $stop`
 do
-  params=`sed "$((IDX))q;d" slurm.params` #change back to slurm.params
+  params=`sed "$((IDX))q;d" slurm.params` 
   echo "$((IDX)) ${params}"
   set -- junk $params
   shift
