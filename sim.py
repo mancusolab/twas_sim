@@ -5,7 +5,6 @@ import re
 import sys
 import time
 
-import limix.her as her
 import numpy as np
 import pandas as pd
 import scipy.linalg as linalg
@@ -14,6 +13,8 @@ from pandas_plink import read_plink
 from scipy import stats
 from scipy.stats import invgamma
 from sklearn import linear_model as lm
+from glimix_core.lmm import LMM
+from numpy_sugar.linalg import economic_qs
 
 
 class NumCausalSNPs:
@@ -348,6 +349,32 @@ def regress(Z, pheno):
 
     return gwas
 
+def estimate_her(Z, y, covar):
+    """
+    Calculate proportion of expression variation explained by genotypes (cis-heritability; :math:`h_g^2`).
+    """
+    n, p = Z.shape
+
+    Z -= np.mean(Z, axis=0)
+    Z /= np.std(Z, axis=0)
+
+    y -= np.mean(y)
+    y /= np.std(y)
+
+    covar = np.ones(n)
+
+    GRM = np.dot(Z, Z.T) / p
+    GRM = GRM / np.diag(GRM).mean()
+    QS = economic_qs(GRM)
+    method = LMM(y, covar, QS, restricted=True)
+    method.fit(verbose=False)
+
+    g = method.scale * (1 - method.delta)
+    e = method.scale * method.delta
+    v = np.var(method.mean())
+    h2g = g / (v + g + e)
+
+    return h2g
 
 def sim_gwasfast(L, ngwas, beta, h2ge):
     """
@@ -440,9 +467,6 @@ def sim_eqtl(L, b_qtls, args):
     Z_qtl = sim_geno(L, nqtl)
     n, p = [float(x) for x in Z_qtl.shape]
 
-    # GRM and LD
-    A = np.dot(Z_qtl, Z_qtl.T) / p
-
     # simulate gene expression
     gexpr = sim_trait(np.dot(Z_qtl, b_qtls), eqtl_h2)
 
@@ -450,7 +474,7 @@ def sim_eqtl(L, b_qtls, args):
     eqtl = regress(Z_qtl, gexpr)
 
     # fit predictive model
-    h2g = her.estimate(gexpr, "normal", A, verbose=False)
+    h2g = estimate_her(Z_qtl, gexpr, covar=None)
 
     # sample eQTL reference pop genotypes from MVN approx and perform eQTL scan + fit penalized linear model
     if linear_model == "lasso":
@@ -759,3 +783,4 @@ def main(args):
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
+                                        

@@ -1,13 +1,19 @@
-# twas_sim
+# `twas_sim`
 
-A python software leveraging real genotype data to simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on the complex trait. **The manuscript is in progress.**
+A python software leveraging real genotype data to simulate a complex trait as a function of latent expression, fit eQTL weights in independent data, and perform GWAS/TWAS on the complex trait.
+
+`twas_sim` is described in:
+
+> [twas_sim, a Python-based tool for simulation and power analysis of transcriptome-wide association analysis](https://doi.org/10.1093/bioinformatics/btad288). Xinran Wang, Zeyun Lu, Arjun Bhattacharya, Bogdan Pasaniuc, Nicholas Mancuso, twas_sim, a Python-based tool for simulation and power analysis of transcriptome-wide association analysis, ***Bioinformatics***, 2023;
+
+-------
 
 [Installation](#Installation) | [Overview](#Overview) | [Usage](#Usage) | [Example](#Example) | [Notes](#Notes) | [Output](#Output) | [Support](#Support) | [Other Software](#Other-Software)
 
 
 ## Installation
 
-To download the twas_sim, first type the commands
+To download `twas_sim`, first type the commands
 
     git clone https://github.com/mancusolab/twas_sim.git
     cd twas_sim
@@ -31,7 +37,7 @@ The script [example.sh](https://github.com/mancusolab/twas_sim/blob/master/examp
 
 * **GWAS:** standard GWAS simulates GWAS summary statistics using individual-level genotype and phenotype data. Fast GWAS simulates GWAS summary statistics directly using the multivariate normal distribution parameterized by LD.
 
-* **Linear model:** twas_sim supports predicting gene expressions using Elastic Net, LASSO, GBLUP, and true eQTL effect sizes. The dynamic import feature enables twas_sim to easily include external prediction tools.
+* **Linear model:** `twas_sim` supports predicting gene expressions using Elastic Net, LASSO, GBLUP, and true eQTL effect sizes. The dynamic import feature enables twas_sim to easily include external prediction tools.
 
 * **TWAS:** twas_sim computes TWAS test statistics using LD, GWAS Z-scores, and estimated eQTL effect sizes.
 
