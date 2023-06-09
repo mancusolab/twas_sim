@@ -349,7 +349,7 @@ def regress(Z, pheno):
 
     return gwas
 
-def estimate_her(Z, y, covar):
+def estimate_her(Z, y):
     """
     Calculate proportion of expression variation explained by genotypes (cis-heritability; :math:`h_g^2`).
     """
@@ -364,7 +364,11 @@ def estimate_her(Z, y, covar):
     covar = np.ones(n)
 
     GRM = np.dot(Z, Z.T) / p
-    GRM = GRM / np.diag(GRM).mean()
+    # normalize the covariance matrix as suggested by Limix
+    # https://horta-limix.readthedocs.io/en/api/_modules/limix/her/_estimate.html#estimate
+    # and https://horta-limix.readthedocs.io/en/api/_modules/limix/qc/kinship.html#normalise_covariance
+    c_scaler = (GRM.shape[0] - 1) / (GRM.trace() - GRM.mean(0).sum())
+    GRM *= c_scaler
     QS = economic_qs(GRM)
     method = LMM(y, covar, QS, restricted=True)
     method.fit(verbose=False)
@@ -474,7 +478,7 @@ def sim_eqtl(L, b_qtls, args):
     eqtl = regress(Z_qtl, gexpr)
 
     # fit predictive model
-    h2g = estimate_her(Z_qtl, gexpr, covar=None)
+    h2g = estimate_her(Z_qtl, gexpr)
 
     # sample eQTL reference pop genotypes from MVN approx and perform eQTL scan + fit penalized linear model
     if linear_model == "lasso":
