@@ -367,8 +367,8 @@ def estimate_her(Z, y):
     # normalize the covariance matrix as suggested by Limix
     # https://horta-limix.readthedocs.io/en/api/_modules/limix/her/_estimate.html#estimate
     # and https://horta-limix.readthedocs.io/en/api/_modules/limix/qc/kinship.html#normalise_covariance
-    c_scaler = (GRM.shape[0] - 1) / (GRM.trace() - GRM.mean(0).sum())
-    GRM *= c_scaler
+    # here, we calculate GRM using p, instead of p-1, so jnp.diag.mean should be equivalent to jnp.trace/(p-1)
+    GRM /= jnp.diag(GRM).mean()
     QS = economic_qs(GRM)
     method = LMM(y, covar, QS, restricted=True)
     method.fit(verbose=False)
